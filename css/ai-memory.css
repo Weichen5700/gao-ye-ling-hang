@@ -1,0 +1,43 @@
+.ai-memory-launch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 0.8rem;
+  margin-top: 0.9rem;
+}
+
+.ai-memory-launch .btn {
+  min-height: 38px;
+  padding: 0.45rem 0.8rem;
+  border: 1px solid #9abfce;
+  border-radius: 0.5rem;
+  background: #f0f9fc;
+  color: #155e75;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ai-memory-launch .btn:hover { background: #e0f2f7; }
+.ai-memory-launch .btn:disabled { cursor: wait; opacity: 0.65; }
+.ai-memory-launch span { color: #64748b; font-size: 0.8rem; }
+.ai-memory-slot { margin-top: 0.75rem; scroll-margin-top: 1rem; }
+.ai-memory-loading { padding: 0.65rem 0.8rem; color: #475569; font-size: 0.88rem; }
+
+#ai-memory-box button {
+  padding: 0.35rem 0.6rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.4rem;
+  background: #fff;
+  color: #334155;
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+#ai-memory-box button:disabled { cursor: wait; opacity: 0.55; }
+#ai-memory-box button.btn-success { border-color: #15803d; background: #15803d; color: #fff; }
+#ai-memory-box button.btn-outline-purple { border-color: #8b5cf6; color: #7c3aed; }
+#ai-memory-box .ai-memory-image-link { display: inline-block; max-width: 100%; }
+#ai-memory-box .ai-memory-image-link img { display: block; width: min(100%, 560px); max-height: 420px; margin: 0 auto; border-radius: 0.5rem; object-fit: contain; }

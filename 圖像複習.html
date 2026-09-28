@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f3f6f8">
+  <meta name="description" content="證券商高級業務員歷屆題目圖像複習卡。">
+  <title>高業領航｜圖像記憶複習・600 題</title>
+  <style>
+    :root { color-scheme:light; --ink:#172d36; --muted:#5e7278; --line:#d6e0e2; --paper:#fff; --page:#f3f6f8; --teal:#176c69; --teal-dark:#11524f; --gold:#d7a84b; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--page); color:var(--ink); font-family:Arial,"Microsoft JhengHei",sans-serif; line-height:1.6; }
+    a { color:inherit; }
+    .page { width:min(1120px,calc(100% - 32px)); margin:0 auto; padding:20px 0 48px; }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-bottom:14px; border-bottom:1px solid var(--line); }
+    header nav { display:flex; flex-wrap:wrap; gap:8px; }
+    .brand { font-weight:850; text-decoration:none; }
+    .button { display:inline-flex; align-items:center; justify-content:center; min-height:40px; padding:8px 13px; border:1px solid #bdd1d0; border-radius:8px; background:#fff; color:var(--teal-dark); font-weight:750; text-decoration:none; }
+    .button.primary { border-color:var(--teal); background:var(--teal); color:#fff; }
+    h1 { margin:26px 0 4px; font-size:clamp(1.8rem,4vw,2.6rem); line-height:1.2; }
+    .lead { margin:0; color:var(--muted); }
+    .controls { display:flex; flex-wrap:wrap; gap:9px; margin:20px 0 8px; }
+    select,input { min-height:42px; min-width:min(220px,100%); padding:8px 11px; border:1px solid var(--line); border-radius:9px; background:#fff; color:var(--ink); font:inherit; }
+    #count { margin:0 0 12px; color:var(--muted); font-size:.9rem; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .card { overflow:hidden; background:var(--paper); border:1px solid var(--line); border-radius:14px; box-shadow:0 5px 18px rgba(26,49,57,.045); }
+    .card-head { display:flex; justify-content:space-between; gap:8px; padding:12px 15px 8px; color:var(--muted); font-size:.8rem; font-weight:800; }
+    .card-head span:first-child { color:var(--teal); }
+    figure { margin:0; padding:0 12px; }
+    .image-frame { overflow:hidden; display:grid; min-height:180px; place-items:center; border:1px solid #e3e9e9; border-radius:11px; background:#f8f7f2; }
+    .image-frame img { display:block; width:100%; height:auto; }
+    .image-frame img[hidden], .missing[hidden] { display:none; }
+    .missing { width:100%; min-height:180px; display:grid; place-items:center; padding:18px; color:#7b6a4d; background:#fff9ec; text-align:center; }
+    figcaption { padding:7px 3px 9px; color:var(--muted); font-size:.84rem; }
+    .content { padding:0 15px 15px; }
+    .question { margin:0 0 10px; font-weight:750; }
+    .answer { padding:10px 12px; border:1px solid #a7f3d0; border-radius:10px; background:#ecfdf5; color:#14532d; }
+    .answer strong { display:block; }
+    details { margin-top:9px; color:var(--muted); font-size:.86rem; }
+    summary { color:var(--teal-dark); font-weight:750; cursor:pointer; }
+    ol { display:grid; gap:4px; margin:7px 0 0; padding-left:22px; }
+    .correct { color:#14532d; font-weight:800; }
+    .source { display:block; margin-top:9px; color:var(--muted); font-size:.77rem; }
+    .source a { color:var(--teal-dark); font-weight:750; }
+    .empty { grid-column:1/-1; padding:24px; border:1px dashed var(--line); border-radius:12px; color:var(--muted); text-align:center; }
+    .pagination { display:flex; align-items:center; justify-content:center; gap:8px; margin-top:18px; }
+    .pagination button { min-width:42px; min-height:40px; padding:7px 12px; border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--teal-dark); font:inherit; font-weight:750; cursor:pointer; }
+    .pagination button:disabled { color:#9aa8aa; cursor:default; }
+    @media(max-width:760px) { .grid { grid-template-columns:1fr; } }
+    @media(max-width:520px) { header { align-items:flex-start; flex-direction:column; } .card-head { display:block; } .card-head span { display:block; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <a class="brand" href="index.html">← 高業領航</a>
+      <nav aria-label="複習導覽">
+        <a class="button" href="複習.html?bank=data%2F%E8%AD%89%E5%88%B8%E5%95%86%E9%AB%98%E7%B4%9A%E6%A5%AD%E5%8B%99%E5%93%A1%2F00_%E5%85%A8%E9%83%A8%E8%80%83%E5%8F%A4%E9%A1%8C.txt">文字題庫複習</a>
+      </nav>
+    </header>
+    <main>
+      <h1>圖像記憶複習</h1>
+      <p class="lead">按場次、科目或題號找卡；先看圖回想，再展開答案與選項。</p>
+      <div class="controls" aria-label="篩選圖像複習卡">
+        <select id="exam-filter" aria-label="依考試場次篩選">
+          <option value="all">全部場次・600 題</option>
+          <option value="11502">115 年第 2 次</option><option value="11501">115 年第 1 次</option>
+          <option value="11403">114 年第 3 次</option><option value="11402">114 年第 2 次</option>
+        </select>
+        <select id="subject-filter" aria-label="依科目篩選">
+          <option value="all">全部科目</option><option value="01">投資學</option>
+          <option value="02">財務分析</option><option value="03">證券交易相關法規與實務</option>
+        </select>
+        <input id="search" type="search" placeholder="搜尋題目、答案或題號" aria-label="搜尋題目、答案或題號">
+      </div>
+      <p id="count" aria-live="polite"></p>
+      <div id="grid" class="grid" aria-live="polite"></div>
+      <div id="pagination" class="pagination" aria-label="圖卡分頁"></div>
+    </main>
+  </div>
+  <script src="data/%E8%AD%89%E5%88%B8%E5%95%86%E9%AB%98%E7%B4%9A%E6%A5%AD%E5%8B%99%E5%93%A1/11502-image-memory-bank.js"></script>
+  <script src="data/%E8%AD%89%E5%88%B8%E5%95%86%E9%AB%98%E7%B4%9A%E6%A5%AD%E5%8B%99%E5%93%A1/11501-image-memory-bank.js"></script>
+  <script src="data/%E8%AD%89%E5%88%B8%E5%95%86%E9%AB%98%E7%B4%9A%E6%A5%AD%E5%8B%99%E5%93%A1/11403-image-memory-bank.js"></script>
+  <script src="data/%E8%AD%89%E5%88%B8%E5%95%86%E9%AB%98%E7%B4%9A%E6%A5%AD%E5%8B%99%E5%93%A1/11402-image-memory-bank.js"></script>
+  <script>
+    const cards = [
+      ...(window.HIGH_GRADE_11502_MEMORY || []).map(card => ({ ...card, examCode:'11502' })),
+      ...(window.HIGH_GRADE_11501_MEMORY || []).map(card => ({ ...card, examCode:'11501' })),
+      ...(window.HIGH_GRADE_11403_MEMORY || []).map(card => ({ ...card, examCode:'11403' })),
+      ...(window.HIGH_GRADE_11402_MEMORY || []).map(card => ({ ...card, examCode:'11402' }))
+    ];
+    const grid = document.getElementById('grid');
+    const count = document.getElementById('count');
+    const pagination = document.getElementById('pagination');
+    const examFilter = document.getElementById('exam-filter');
+    const subjectFilter = document.getElementById('subject-filter');
+    const search = document.getElementById('search');
+    const pageSize = 20;
+    let currentPage = 1;
+    const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[char]);
+    const styleLabel = value => value === 'formula' ? '數字／公式' : value === 'comic' ? '情境漫畫' : '概念圖';
+    function render() {
+      const examCode = examFilter.value;
+      const subjectCode = subjectFilter.value;
+      const term = search.value.trim().toLocaleLowerCase();
+      const filtered = cards.filter(card => {
+        const text = (card.question + ' ' + (card.answers || []).join(' ') + ' ' + card.questionNumber + ' ' + card.subject + ' ' + card.memoryKey).toLocaleLowerCase();
+        return (examCode === 'all' || card.examCode === examCode) &&
+          (subjectCode === 'all' || card.subjectCode === subjectCode) && (!term || text.includes(term));
+      });
+      const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+      currentPage = Math.min(currentPage, pageCount);
+      const first = (currentPage - 1) * pageSize;
+      const visible = filtered.slice(first, first + pageSize);
+      count.textContent = filtered.length
+        ? '第 ' + (first + 1) + '–' + (first + visible.length) + ' 題，共 ' + filtered.length + ' 題符合篩選；資料庫共 ' + cards.length + ' 題。'
+        : '沒有符合條件的圖卡。';
+      if (!filtered.length) { grid.innerHTML = '<p class="empty">找不到符合條件的圖卡。</p>'; pagination.innerHTML = ''; return; }
+      grid.innerHTML = visible.map(card => {
+        const number = String(card.questionNumber).padStart(2, '0');
+        const sessionLabel = Number(card.examCode.slice(0,3)) + ' 年第 ' + Number(card.examCode.slice(3)) + ' 次';
+        const questionFile = String(card.questionFile || (card.examCode + '.pdf')).split('/').pop();
+        const options = (card.options || []).map(option => '<li class="' + (card.answers.includes(option) ? 'correct' : '') + '">' + escapeHtml(option) + (card.answers.includes(option) ? ' ✓' : '') + '</li>').join('');
+        const pages = (card.questionPages || []).join('、');
+        const answerPdf = card.answerFile || ('data/證券商高級業務員/' + card.examCode + 'a-official.pdf');
+        return '<article class="card">' +
+          '<div class="card-head"><span>' + escapeHtml(card.subject) + '・' + styleLabel(card.imageStyle) + '</span><span>' + sessionLabel + '・第 ' + number + ' 題</span></div>' +
+          '<figure><div class="image-frame"><img src="' + encodeURI(card.image) + '" alt="第 ' + number + ' 題記憶圖：' + escapeHtml(card.memoryKey) + '" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><div class="missing" hidden>這題的圖像尚未補齊<br>記憶關鍵：' + escapeHtml(card.memoryKey) + '</div></div><figcaption>記憶關鍵點：' + escapeHtml(card.memoryKey) + '</figcaption></figure>' +
+          '<div class="content"><p class="question">' + escapeHtml(card.question) + '</p>' +
+          '<div class="answer"><strong>答案：' + escapeHtml(card.memoryKey) + '</strong>先回想概念，再核對選項。</div>' +
+          '<details><summary>看完整選項</summary><ol>' + options + '</ol></details>' +
+          '<small class="source">原題：' + (card.questionPdf ? '<a href="' + escapeHtml(card.questionPdf) + '" target="_blank" rel="noopener">' + escapeHtml(questionFile) + '</a>' : escapeHtml(questionFile)) + ' 第 ' + escapeHtml(pages) + ' 頁 · 答案來源：<a href="' + escapeHtml(answerPdf) + '" target="_blank" rel="noopener">' + escapeHtml(card.answerSource || '答案 PDF') + '</a></small></div></article>';
+      }).join('');
+      pagination.innerHTML = pageCount > 1
+        ? '<button type="button" data-step="-1" ' + (currentPage === 1 ? 'disabled' : '') + '>上一頁</button><span>' + currentPage + ' / ' + pageCount + '</span><button type="button" data-step="1" ' + (currentPage === pageCount ? 'disabled' : '') + '>下一頁</button>'
+        : '';
+    }
+    examFilter.addEventListener('change', () => { currentPage = 1; render(); });
+    subjectFilter.addEventListener('change', () => { currentPage = 1; render(); });
+    search.addEventListener('input', () => { currentPage = 1; render(); });
+    pagination.addEventListener('click', event => {
+      const button = event.target.closest('button[data-step]');
+      if (!button || button.disabled) return;
+      currentPage += Number(button.dataset.step);
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    render();
+  </script>
+</body>
+</html>

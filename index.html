@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f3f6f8">
+  <meta name="description" content="證券商高級業務員複習與模擬考入口，提供分科複習與 105 至 115 年完整歷屆題庫。">
+  <title>高業領航｜證券商高級業務員備考站</title>
+  <style>
+    :root { color-scheme: light; --ink:#172d36; --muted:#5e7278; --line:#d6e0e2; --paper:#fff; --page:#f3f6f8; --teal:#176c69; --teal-dark:#11524f; --gold:#d7a84b; --mist:#e5f0ef; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--page); color:var(--ink); font-family:Arial,"Microsoft JhengHei",sans-serif; line-height:1.65; }
+    a { color:inherit; }
+    .page { width:min(1080px,calc(100% - 32px)); margin:0 auto; padding:22px 0 48px; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:14px; padding-bottom:16px; border-bottom:1px solid var(--line); }
+    .brand { margin:0; font-size:1rem; font-weight:800; letter-spacing:.04em; }
+    .top-links { display:flex; gap:16px; color:var(--muted); font-size:.9rem; }
+    .top-links a { text-decoration:none; }
+    .hero { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr); align-items:center; gap:clamp(20px,4vw,48px); margin-top:26px; padding:clamp(24px,5vw,48px); color:#f5fbfa; border-radius:22px; background:linear-gradient(125deg,#173b46,#176c69); box-shadow:0 14px 34px rgba(23,60,68,.16); }
+    .eyebrow { margin:0; color:#bfe2dd; font-size:.82rem; font-weight:800; letter-spacing:.16em; text-transform:uppercase; }
+    h1 { max-width:740px; margin:9px 0 0; font-size:clamp(2rem,5vw,3.5rem); letter-spacing:-.035em; line-height:1.18; }
+    .hero-copy { max-width:730px; margin:16px 0 0; color:#dcebe9; font-size:1.05rem; }
+    .hero-scope { padding:22px; border:1px solid rgba(255,255,255,.24); border-radius:16px; background:rgba(255,255,255,.11); }
+    .hero-scope strong { display:block; font-size:1.06rem; }
+    .hero-scope p { margin:5px 0 14px; color:#e3f0ee; font-size:.9rem; }
+    .hero-scope ul { display:grid; gap:8px; margin:0; padding:0; list-style:none; }
+    .hero-scope li { display:flex; justify-content:space-between; gap:12px; padding:9px 11px; border-radius:9px; background:rgba(255,255,255,.1); font-size:.9rem; }
+    .hero-scope li b { color:#fff1c8; white-space:nowrap; }
+    .hero-stats { display:flex; flex-wrap:wrap; gap:10px; margin-top:25px; }
+    .hero-stat { padding:8px 12px; border:1px solid rgba(255,255,255,.23); border-radius:999px; background:rgba(255,255,255,.08); font-size:.9rem; }
+    .section { margin-top:30px; }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:23px; }
+    .hero-actions .button { min-height:48px; padding:10px 18px; font-size:1rem; }
+    .hero-actions .button.outline { border-color:rgba(255,255,255,.7); background:transparent; color:#fff; }
+    .hero-actions .button.outline:hover { background:rgba(255,255,255,.13); }
+    .scope-strip { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:18px; }
+    .scope-step { padding:16px 18px; border:1px solid var(--line); border-radius:13px; background:#fff; }
+    .scope-step b { display:block; color:var(--teal-dark); font-size:.82rem; }
+    .scope-step strong { display:block; margin-top:3px; font-size:1rem; }
+    .scope-step span { display:block; margin-top:4px; color:var(--muted); font-size:.86rem; }
+    .info-disclosure { padding:15px 18px; border:1px solid var(--line); border-radius:12px; background:#fff; }
+    .info-disclosure > summary { color:var(--muted); font-size:.9rem; font-weight:750; }
+    .info-disclosure[open] > summary { margin-bottom:12px; color:var(--teal-dark); }
+    .section-head { display:flex; justify-content:space-between; align-items:end; gap:18px; margin-bottom:15px; }
+    .section-head h2 { margin:0; font-size:1.45rem; }
+    .section-head p { margin:3px 0 0; color:var(--muted); font-size:.93rem; }
+    .subject-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .subject-card,.panel,.session-panel { background:var(--paper); border:1px solid var(--line); border-radius:14px; box-shadow:0 5px 18px rgba(26,49,57,.045); }
+    .subject-card { display:flex; flex-direction:column; min-height:226px; padding:20px; border-top:4px solid var(--teal); }
+    .subject-index { color:var(--teal); font-size:.78rem; font-weight:800; letter-spacing:.1em; }
+    .subject-card h3 { margin:7px 0 0; font-size:1.16rem; line-height:1.4; }
+    .subject-card p { margin:9px 0 16px; color:var(--muted); font-size:.92rem; }
+    .topic-focus { margin:0 0 17px; padding:10px 12px; border-radius:10px; background:#f0f7f5; color:#285650; font-size:.85rem; line-height:1.55; }
+    .topic-focus strong { display:block; margin-bottom:3px; color:#11524f; }
+    .priority-panel { margin-top:16px; padding:19px 21px; border:1px solid #dfceab; border-radius:14px; background:#fffaf0; }
+    .priority-panel h3 { margin:0 0 6px; font-size:1.08rem; }
+    .priority-panel p { margin:0 0 10px; color:#5d513c; font-size:.9rem; }
+    .priority-list { display:flex; flex-wrap:wrap; gap:8px; margin:0; padding:0; list-style:none; }
+    .priority-list li { padding:6px 10px; border:1px solid #e8d4a7; border-radius:8px; background:#fff; color:#59451e; font-size:.85rem; font-weight:700; }
+    .subject-actions { display:flex; gap:9px; flex-wrap:wrap; margin-top:auto; }
+    .button { display:inline-flex; justify-content:center; align-items:center; min-height:40px; padding:8px 13px; border:1px solid transparent; border-radius:8px; background:var(--teal); color:#fff; font-size:.9rem; font-weight:750; text-decoration:none; cursor:pointer; }
+    .button:hover { background:var(--teal-dark); }
+    .button.outline { border-color:#bdd1d0; background:#fff; color:var(--teal-dark); }
+    .button.outline:hover { background:var(--mist); }
+    .practice-grid { display:grid; grid-template-columns:1fr; gap:14px; }
+    .session-panel,.panel { padding:21px; }
+    .session-panel { background:linear-gradient(145deg,#fff,#f5f9f8); }
+    .session-panel h3,.panel h3 { margin:0; font-size:1.1rem; }
+    .session-panel p,.panel p { margin:6px 0 14px; color:var(--muted); font-size:.92rem; }
+    .session-controls { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+    .session-choice-hint { display:block; margin-top:7px; color:var(--muted); font-size:.82rem; }
+    .session-list-disclosure { margin-top:14px; padding-top:12px; border-top:1px solid var(--line); }
+    .session-list-disclosure > summary { color:var(--teal-dark); font-size:.91rem; font-weight:750; cursor:pointer; }
+    .session-year-list { display:grid; gap:6px; margin-top:10px; }
+    .session-year-row { display:grid; grid-template-columns:5rem 1fr; align-items:center; gap:8px; padding:7px 9px; border:1px solid var(--line); border-radius:9px; background:#fbfdfe; }
+    .session-year-row strong { font-size:.88rem; }
+    .session-year-options { display:flex; flex-wrap:wrap; gap:6px; }
+    .session-year-options button { min-height:34px; padding:4px 10px; border:1px solid #bdd1d0; border-radius:999px; background:#fff; color:var(--teal-dark); font:inherit; font-size:.82rem; font-weight:700; cursor:pointer; }
+    .session-year-options button:hover,.session-year-options button:focus-visible { background:var(--mist); border-color:var(--teal); }
+    select { min-height:40px; min-width:min(280px,100%); padding:8px 11px; color:var(--ink); border:1px solid var(--line); border-radius:8px; background:#fff; font:inherit; }
+    .quick-links { display:flex; flex-wrap:wrap; gap:9px; }
+    .resource-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .resource-card { padding:21px; background:var(--paper); border:1px solid var(--line); border-radius:14px; box-shadow:0 5px 18px rgba(26,49,57,.045); }
+    .resource-card h3 { margin:0; font-size:1.08rem; }
+    .resource-card p { margin:7px 0 13px; color:var(--muted); font-size:.92rem; }
+    .resource-card ul { margin:0 0 15px; padding-left:20px; color:var(--ink); font-size:.92rem; }
+    .resource-card li+li { margin-top:5px; }
+    .resource-card .quick-links { margin-top:12px; }
+    .resource-kicker { display:block; margin-bottom:7px; color:var(--teal); font-size:.77rem; font-weight:800; letter-spacing:.08em; }
+    .exam-facts { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:0 0 15px; }
+    .exam-fact { padding:13px 15px; border:1px solid #cde0dc; border-radius:11px; background:#f0f7f5; }
+    .exam-fact b { display:block; color:#11524f; font-size:.8rem; }
+    .exam-fact strong { display:block; font-size:1.12rem; }
+    .exam-fact span { color:#526c69; font-size:.82rem; }
+    .exam-fact a { color:#11524f; font-size:.8rem; font-weight:750; text-decoration:underline; }
+    .exam-emphasis { padding:8px 10px; border-left:4px solid #c28b27; border-radius:0 7px 7px 0; background:#fff5dd; color:#523b15; font-weight:750; }
+    .study-plan { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; margin-top:13px; }
+    .study-step { padding:11px; border-radius:10px; background:#f2f7f6; font-size:.87rem; }
+    .study-step strong { display:block; margin-bottom:4px; color:var(--teal-dark); }
+    .audit-card { margin-top:14px; padding:17px 20px; border:1px solid #cde0dc; border-radius:14px; background:#f0f7f5; }
+    .audit-card h3 { margin:0; font-size:1.05rem; }
+    .audit-card p { margin:6px 0 0; color:#425d5c; font-size:.9rem; }
+    .memory-panel { display:grid; grid-template-columns:auto 1fr; gap:17px; align-items:start; background:#f0f7f5; border-color:#cde0dc; }
+    .memory-icon { display:grid; width:48px; height:48px; place-items:center; border-radius:13px; background:#d9ebe6; font-size:1.35rem; }
+    .memory-panel h3 { margin:0; }
+    .memory-panel p { margin:5px 0 0; }
+    .memory-steps { display:flex; flex-wrap:wrap; gap:8px; margin-top:11px; }
+    .memory-steps span { padding:4px 9px; color:#285c58; border:1px solid #c2dad5; border-radius:999px; background:#fff; font-size:.82rem; }
+    .source-note { margin-top:22px; padding:14px 16px; border-left:4px solid var(--gold); border-radius:0 9px 9px 0; background:#fff9ec; color:#665637; font-size:.9rem; }
+    .source-note a { color:#175d5a; font-weight:700; }
+    .footer { margin-top:27px; padding-top:16px; border-top:1px solid var(--line); color:var(--muted); font-size:.86rem; }
+    :focus-visible { outline:3px solid #d7a84b; outline-offset:3px; }
+    @media(max-width:760px) { .hero { grid-template-columns:1fr; } .scope-strip,.subject-grid,.resource-grid,.exam-facts { grid-template-columns:1fr; } .subject-card { min-height:0; } .practice-grid { grid-template-columns:1fr; } .section-head { display:block; } .study-plan { grid-template-columns:1fr; } }
+    @media(max-width:480px) { .page { width:calc(100% - 24px); } .topbar { align-items:flex-start; flex-direction:column; } .top-links { gap:13px; flex-wrap:wrap; } .hero { border-radius:16px; padding:22px 18px; } .hero-actions,.session-controls { flex-direction:column; align-items:stretch; } .hero-actions .button,.session-controls .button, .session-controls select { width:100%; } .session-year-row { grid-template-columns:1fr; gap:4px; } .subject-actions .button { flex:1 1 100%; } .session-panel,.resource-card { padding:17px; } }
+    .image-demo-intro { max-width:850px; }
+    .image-gallery-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:18px; }
+    .image-demo-card { overflow:hidden; background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 5px 18px rgba(26,49,57,.05); }
+    .image-demo-card-head { display:flex; justify-content:space-between; gap:8px; padding:13px 16px 10px; color:var(--muted); font-size:.78rem; font-weight:800; }
+    .image-demo-card-head span:first-child { color:var(--teal); }
+    .image-demo-figure { margin:0; padding:0 12px; }
+    .image-scene { position:relative; overflow:hidden; border:1px solid #e3e9e9; border-radius:12px; background:#f8f7f2; }
+    .image-scene img { display:block; width:100%; height:auto; }
+    .image-demo-figure figcaption { padding:8px 3px 10px; color:var(--muted); font-size:.83rem; line-height:1.55; }
+    .image-label { position:absolute; z-index:1; padding:6px 10px; border:1px solid rgba(23,45,54,.12); border-radius:10px; background:rgba(255,255,255,.94); box-shadow:0 3px 12px rgba(15,40,48,.14); color:#173b46; font-size:.88rem; font-weight:850; line-height:1.3; text-align:center; }
+    .image-label small { display:block; margin-top:2px; font-size:.72rem; font-weight:700; }
+    .global-label { top:2%; left:50%; transform:translateX(-50%); }
+    .scene-formula { position:absolute; z-index:1; right:3%; bottom:3%; left:3%; padding:7px 10px; border:1px solid rgba(23,45,54,.12); border-radius:10px; background:rgba(255,255,255,.94); box-shadow:0 3px 12px rgba(15,40,48,.13); color:#173b46; font-size:clamp(.75rem,1.5vw,.95rem); font-weight:850; line-height:1.4; text-align:center; }
+    .bond-formula { top:3%; right:auto; bottom:auto; left:3%; }
+    .date-label { top:20%; left:51%; width:13%; padding:3px 2px; color:#11524f; font-size:clamp(.58rem,1.05vw,.8rem); }
+    .equity-parent-label { top:16%; left:23%; color:#fff; background:rgba(17,82,79,.93); }
+    .equity-main-label { top:47%; left:34%; width:25%; color:#fff; background:rgba(17,82,79,.94); }
+    .equity-nci-label { top:47%; left:61%; width:16%; padding:6px 4px; color:#533d14; background:rgba(255,250,226,.97); font-size:.78rem; }
+    .prospectus-label { top:48%; left:7%; width:19%; color:#174b66; background:rgba(255,255,255,.84); box-shadow:none; }
+    .comic-label { top:1.4%; width:47%; height:10.5%; display:grid; place-items:center; padding:4px 6px; border:0; border-radius:8px; background:rgba(255,251,240,.96); box-shadow:none; font-size:clamp(.62rem,1.3vw,.9rem); }
+    .comic-label.left { left:1.4%; }
+    .comic-label.right { right:1.4%; }
+    .image-story { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:6px; margin:0 12px 12px; padding:9px 10px; border:1px solid #cfe0dc; border-radius:10px; background:#eff7f5; color:#174b49; font-size:.79rem; font-weight:800; text-align:center; }
+    .image-story span { padding:3px 7px; border-radius:999px; background:#fff; }
+    .image-story b { color:#bb8424; }
+    .image-demo-content { padding:1px 16px 16px; }
+    .image-demo-question { margin:0 0 10px; font-size:1rem; line-height:1.65; font-weight:700; }
+    .image-concept-note { margin:0 0 10px; color:#52696d; font-size:.84rem; }
+    .image-demo-answer { padding:11px 13px; border-radius:11px; color:#14532d; background:#ecfdf5; border:1px solid #a7f3d0; font-size:.88rem; line-height:1.55; }
+    .image-demo-answer strong { display:block; margin-bottom:3px; font-size:1rem; }
+    .image-demo-card details { margin-top:10px; color:var(--muted); font-size:.84rem; }
+    .image-demo-card summary { color:var(--teal-dark); font-weight:750; cursor:pointer; }
+    .image-demo-options { display:grid; gap:5px; padding-left:22px; margin:8px 0 0; }
+    .image-demo-options li.correct-option { color:#14532d; font-weight:800; }
+    .image-demo-source { display:block; margin-top:9px; color:var(--muted); font-size:.76rem; }
+    .image-demo-source a { color:var(--teal-dark); font-weight:750; }
+    .memory-library-controls { display:flex; flex-wrap:wrap; gap:10px; margin:15px 0 9px; }
+    .memory-library-controls select,.memory-library-controls input { min-height:42px; min-width:220px; padding:8px 11px; border:1px solid var(--line); border-radius:9px; background:#fff; color:var(--ink); font:inherit; }
+    .memory-library-count { margin:0 0 12px; color:var(--muted); font-size:.86rem; }
+    .memory-library-empty { grid-column:1/-1; padding:22px; border:1px dashed var(--line); border-radius:12px; color:var(--muted); text-align:center; }
+    @media(max-width:760px) { .image-gallery-grid { grid-template-columns:1fr; } .scene-formula { font-size:.78rem; } }
+    @media(max-width:420px) { .image-demo-card-head { display:block; } .image-demo-card-head span { display:block; } .image-label { font-size:.74rem; } .equity-nci-label { font-size:.65rem; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <p class="brand"><a href="index.html" style="text-decoration:none;">高業領航</a></p>
+      <nav class="top-links" aria-label="主選單">
+        <a href="#practice-title">複習與考試</a>
+        <a href="#subject-title">分科複習</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="top">
+        <div>
+          <p class="eyebrow">證券商高級業務員・專業三科</p>
+          <h1>先看清範圍，<br>再把重點練熟。</h1>
+          <p class="hero-copy">從三科考點開始，接著練歷屆題，最後用整回模擬考檢查弱點。題庫涵蓋 105–115 年、37 回，共 5,550 題。</p>
+          <div class="hero-actions">
+            <a class="button" href="#subject-title">查看三科範圍</a>
+            <a class="button outline" href="#practice-title">選歷屆場次</a>
+          </div>
+        </div>
+        <aside class="hero-scope" aria-label="考試範圍摘要">
+          <strong>這次要複習什麼？</strong>
+          <p>專業科目共三科；每回題庫各科 50 題。</p>
+          <ul>
+            <li><span>01　投資學</span><b>50 題</b></li>
+            <li><span>02　財務分析</span><b>50 題</b></li>
+            <li><span>03　法規與實務</span><b>50 題</b></li>
+          </ul>
+        </aside>
+      </section>
+      <div class="scope-strip" aria-label="建議複習順序">
+        <div class="scope-step"><b>STEP 1 · 建立範圍</b><strong>看三科核心主題</strong><span>先知道哪些觀念、計算與法規要會。</span></div>
+        <div class="scope-step"><b>STEP 2 · 分科練習</b><strong>找出弱科與易錯點</strong><span>每科可複習 1,850 題，先理解解法。</span></div>
+        <div class="scope-step"><b>STEP 3 · 整回檢驗</b><strong>做 150 題模擬考</strong><span>從最新回開始，對照總分與各科門檻。</span></div>
+      </div>
+      <section class="section" aria-labelledby="subject-title">
+        <div class="section-head">
+          <div>
+            <h2 id="subject-title">按科目開始複習</h2>
+            <p>三科各 1,850 題，合起來是 5,550 題；37 場是同一批題目按場次整理。</p>
+          </div>
+        </div>
+        <div class="subject-grid">
+          <article class="subject-card">
+            <span class="subject-index">SUBJECT 01 · 1,850 題</span>
+            <h3>投資學</h3>
+            <p>投資報酬與風險、證券評價、技術分析、投資組合與衍生性商品。</p>
+            <div class="topic-focus"><strong>先抓重點</strong>CAPM／貝他、債券價格與殖利率、選擇權、技術指標。</div>
+            <div class="subject-actions">
+              <a class="button subject-review" data-bank="01_投資學_全部.txt" href="#">開始複習</a>
+              <a class="button outline subject-exam" data-bank="01_投資學_全部.txt" href="#">科目模擬考</a>
+            </div>
+          </article>
+          <article class="subject-card">
+            <span class="subject-index">SUBJECT 02 · 1,850 題</span>
+            <h3>財務分析</h3>
+            <p>財務報表、會計處理、比率分析、資本預算與企業評價。</p>
+            <div class="topic-focus"><strong>先抓重點</strong>ROE 與財務比率、EPS、存貨衡量；計算題要練代入與判讀。</div>
+            <div class="subject-actions">
+              <a class="button subject-review" data-bank="02_財務分析_全部.txt" href="#">開始複習</a>
+              <a class="button outline subject-exam" data-bank="02_財務分析_全部.txt" href="#">科目模擬考</a>
+            </div>
+          </article>
+          <article class="subject-card">
+            <span class="subject-index">SUBJECT 03 · 1,850 題</span>
+            <h3>證券交易相關法規與實務</h3>
+            <p>公司法、證券交易法、證券商管理、承銷、自營、經紀與交易實務。</p>
+            <div class="topic-focus"><strong>先抓重點</strong>財報申報、重大訊息／內線交易、募集發行與轉換公司債；法規以現行公告核對。</div>
+            <div class="subject-actions">
+              <a class="button subject-review" data-bank="03_證券交易相關法規與實務_全部.txt" href="#">開始複習</a>
+              <a class="button outline subject-exam" data-bank="03_證券交易相關法規與實務_全部.txt" href="#">科目模擬考</a>
+            </div>
+          </article>
+        </div>
+        <aside class="priority-panel" aria-label="跨回考點提醒">
+          <h3>反覆出現的是考點，先練懂再做整回</h3>
+          <p>以下整理自現有 37 回題庫的跨回考點觀察，適合當作起步清單；並非下一回的命中預測。</p>
+          <ul class="priority-list">
+            <li>投資學：公式與價格關係</li>
+            <li>財務分析：比率與會計計算</li>
+            <li>法規實務：申報、交易與募集</li>
+          </ul>
+        </aside>
+      </section>
+      <section class="section practice-grid" id="practice-title" aria-label="歷屆複習與模擬考">
+        <div class="session-panel">
+          <h2>選一場歷屆題，檢查三科掌握度</h2>
+          <p>共 37 場、每場 150 題，三科各 50 題。建議先從 115 年的場次開始，再回頭補弱科。</p>
+          <div class="session-controls">
+            <select id="session-select" aria-label="選擇考試場次"></select>
+            <a id="session-review" class="button outline" href="#">複習本場</a>
+            <a id="session-exam" class="button" href="#">開始模擬考</a>
+          </div>
+          <small class="session-choice-hint">選場次只會更新選擇；按「複習本場」或「開始模擬考」才會載入本機題目。</small>
+          <details class="session-list-disclosure">
+            <summary>瀏覽完整 37 場題庫清單（105–115 年）</summary>
+            <div id="session-year-list" class="session-year-list"></div>
+          </details>
+        </div>
+      </section>
+
+
+
+
+      <details class="section info-disclosure">
+        <summary>考試門檻與備考資料：三科合計 210 分、各科至少 50 分（展開詳情）</summary>
+        <section class="section" id="exam-info" aria-labelledby="exam-info-title">
+        <div class="section-head">
+          <div>
+            <h2 id="exam-info-title">考試與備考資料</h2>
+            <p>以證基會及證券商業同業公會公告為準；場次、價格及法規版本會更新。</p>
+          </div>
+        </div>
+        <div class="exam-facts" aria-label="考試關鍵資訊">
+          <div class="exam-fact"><b>專業科目</b><strong>3 科・每科 50 題</strong><span>合計 150 題，三科題型都要練。</span></div>
+          <div class="exam-fact"><b>合格門檻</b><strong>總分達 210／300</strong><span>並且每科至少 50 分。 </span><a href="https://webline.sfi.org.tw/download/test_ftp/standard.pdf" target="_blank" rel="noopener">查看官方合格標準</a></div>
+          <div class="exam-fact"><b>複習檢查</b><strong>先弱科，再整回</strong><span>法規題請核對最新修訂公告。</span></div>
+        </div>
+        <div class="resource-grid">
+          <article class="resource-card">
+            <span class="resource-kicker">考制與費用</span>
+            <h3>三科專業科目，作答共 3.5 小時</h3>
+            <ul>
+              <li>投資學：50 題、60 分鐘</li>
+              <li>財務分析：50 題、90 分鐘</li>
+              <li>證券交易相關法規與實務：50 題、60 分鐘</li>
+              <li><div class="exam-emphasis">合格重點：三科合計 300 分須達 210 分，且每科至少 50 分。</div></li>
+              <li>電腦應試報名費 NT$1,130；符合減半條件者 NT$565。報名頁顯示為最後依據。</li>
+              <li>證基會目前年度時程列出筆試 3 次（約在 4、8、12 月）；115 年第 3 次公告於 2026 年 12 月 6 日舉行。電腦應試另有全年多個場次。</li>
+            </ul>
+            <p style="margin:0 0 12px;">年度場次以測驗中心最新時程公告為準；公會測驗辦法頁仍載有「每年四次」的文字，與目前年度時程頁不同。</p>
+            <div class="quick-links">
+              <a class="button" href="https://examweb.sfi.org.tw/regexam/exam2.aspx?EXAMCERT=%E9%AB%98" target="_blank" rel="noopener">查場次與報名</a>
+              <a class="button outline" href="https://examweb.sfi.org.tw/regEXAM/index.aspx" target="_blank" rel="noopener">年度筆試與電腦應試時程</a>
+              <a class="button outline" href="https://webline.sfi.org.tw/download/test_ftp/%E5%A0%B1%E5%90%8D%E8%B2%BB%E6%B8%9B%E5%8D%8A%E5%84%AA%E5%BE%85%E8%AA%AA%E6%98%8E.pdf" target="_blank" rel="noopener">減半資格說明</a>
+              <a class="button outline" href="https://twse-regulation.twse.com.tw/TW/law/DAT0201_print.aspx?FLCODE=FL007542" target="_blank" rel="noopener">考試辦法</a>
+            </div>
+            <p class="exam-emphasis" style="margin:12px 0 0;">共同科目提醒：「金融市場常識與職業道德」須達 70 分，合格效力 5 年；請另確認是否需要報考或仍在有效期限內。</p>
+            <p><strong>報考資格（符合一項即可）：</strong>教育部認可的大學以上畢業；高考或相當高等特考及格；證券商業務員資格；投信投顧業務員資格；或證券交易相關法規與實務乙科合格。後三種資格若於 2006 年 8 月 1 日後取得，另須有有效的金融市場常識與職業道德合格證明。</p>
+          </article>
+          <article class="resource-card">
+            <span class="resource-kicker">教材與準備時間</span>
+            <h3>優先使用證基會 115 年版三冊</h3>
+            <ul>
+              <li>《證券交易相關法規與實務》</li>
+              <li>《投資學》</li>
+              <li>《財務分析》</li>
+              <li>三冊組官網標價 NT$1,500；頁面查詢時優惠 NT$1,275，價格以書店現況為準。</li>
+            </ul>
+            <p>建議抓 4–6 週、每天 1.5–2 小時；有金融或會計基礎可採 3–4 週密集複習，零基礎建議完整 6 週。這是讀書安排建議，並非官方規定。</p>
+            <p><strong>購買建議：</strong>先不必買。你已有 37 回、三科各 1,850 題的題庫，可先分科練習、整理錯題；JY 的 NT$399 電子筆記是摘要與整理工具，不會保證考題命中。若至少三回限時模考都穩定達專業科目合計 210 分、每科不低於 50 分（共同科需 70 分），就沒有必要為了題目重疊而購買；若卡在概念、公式或法規整理，再考慮買摘要。商品為一次性交付，售出後不更新，購買前先確認版本。</p>
+            <div class="study-plan" aria-label="建議六週讀書安排">
+              <div class="study-step"><strong>第 1–2 週</strong>讀完三科重點，財務分析同步練計算題，法規整理易混淆條文。</div>
+              <div class="study-step"><strong>第 3–4 週</strong>分科刷歷屆題，按錯題回教材；更新法規題的現行規定。</div>
+              <div class="study-step"><strong>第 5–6 週</strong>做整回 150 題計時模考，補弱科；練到總分穩定高於及格線。</div>
+            </div>
+            <div class="quick-links">
+              <a class="button" href="https://eduweb.sfi.org.tw/books/product.asp?s=4816" target="_blank" rel="noopener">證基會 115 年版教材</a>
+              <a class="button outline" href="https://jyvalue.com/product/%E8%AD%89%E5%88%B8%E5%95%86%E9%AB%98%E7%B4%9A%E6%A5%AD%E5%8B%99%E5%93%A1%E9%AB%98%E6%A5%AD%E7%AD%86%E8%A8%98/" target="_blank" rel="noopener">查看 JY 高業筆記</a>
+              <a class="button outline" href="https://www.sfi.org.tw/Node?id=247" target="_blank" rel="noopener">法規與試題修訂公告</a>
+            </div>
+          </article>
+        </div>
+        <div class="audit-card" aria-labelledby="answer-audit-title">
+          <h3 id="answer-audit-title">考古題與答案核對紀錄</h3>
+          <p>題庫共 37 回、5,550 題，每回三科各 50 題。115 年第 1 次與第 2 次各 150 題，已逐題對照證基會官方答案，兩回皆 0 題差異。較早年度也保留每題答案來源：題本答案表、第三方彙整或人工讀表；法規題請再查最新修訂公告。依測驗辦法，實考仍可能有最多 10% 題目不在公開題庫範圍。證基會目前提供最近兩次筆試題目與答案。</p>
+          <p><strong>跨回考點重現分析（同科比較）：</strong>105–115 年共 37 回，每科各 1,850 題。相鄰兩回平均原題幹重複約投資學 2.9/50、財務分析 3.5/50、法規 3.7/50；以字詞加權相似度找改寫但可能同考點的候選後，約 3.5–3.7、4.4–4.8、4.2–4.6 題/科。115 年第 1、2 次相鄰回原題幹重複 4/10/7 題；題意相近候選為 5/10/7 題（投資學/財務分析/法規，合計 22/150）。115 年第 2 次有 86/150 題幹曾在前 36 回出現；納入改寫相近候選後約 99–101/150。相近候選以同科題幹字詞向量相似度 .42–.55 擷取並抽查，屬考點重現估計，不是逐題人工確認，也不是下一回命中機率。</p>
+          <p class="exam-emphasis">跨回複習重點：投資學的 CAPM／貝他、債券價格與殖利率；財務分析的 ROE／財務比率、EPS、存貨衡量；法規的財報申報、重大訊息／內線交易與募集發行。這些是抽查到的同考點不同題面，請理解規則與解法，不必背題號。</p>
+          <div class="quick-links" style="margin-top:12px;">
+            <a class="button outline" href="https://www.sfi.org.tw/Node?id=217" target="_blank" rel="noopener">官方考古題與答案下載</a>
+            <a class="button outline" href="data/%E8%AD%89%E5%88%B8%E5%95%86%E9%AB%98%E7%B4%9A%E6%A5%AD%E5%8B%99%E5%93%A1/11501a-official.pdf" target="_blank" rel="noopener">115 年第 1 次官方答案 PDF</a>
+            <a class="button outline" href="data/%E8%AD%89%E5%88%B8%E5%95%86%E9%AB%98%E7%B4%9A%E6%A5%AD%E5%8B%99%E5%93%A1/11502a-official.pdf" target="_blank" rel="noopener">115 年第 2 次官方答案 PDF</a>
+          </div>
+        </div>
+      </section>
+
+      </details>    </main>
+
+    <footer class="footer">本準備中心專用於證券商高級業務員專業三科。題目與答案來源保留在每題的出處／備註區；報考資格、費用及教材請以證基會最新公告為準。</footer>
+  </div>
+  <script>
+    const categoryPath = 'data/證券商高級業務員/';
+    const reviewUrl = bank => '複習.html?' + new URLSearchParams({ bank: categoryPath + bank });
+    const examUrl = bank => '考試.html?' + new URLSearchParams({ bank: categoryPath + bank });
+
+    document.querySelectorAll('.subject-review').forEach(link => link.href = reviewUrl(link.dataset.bank));
+    document.querySelectorAll('.subject-exam').forEach(link => link.href = examUrl(link.dataset.bank));
+    document.getElementById('hero-review').href = reviewUrl('00_全部考古題.txt');
+
+    const sessionSelect = document.getElementById('session-select');
+    const sessions = [];
+    for (let year = 115; year >= 105; year--) {
+      const lastSession = year <= 109 ? 4 : year <= 114 ? 3 : 2;
+      for (let session = lastSession; session >= 1; session--) sessions.push({ year, session });
+    }
+    sessions.forEach(({ year, session }) => {
+      const code = `${year}${String(session).padStart(2, '0')}`;
+      const option = document.createElement('option');
+      option.value = code;
+      option.textContent = `${year} 年第 ${session} 次（150 題）`;
+      sessionSelect.appendChild(option);
+    });
+    sessionSelect.value = '11502';
+
+    const sessionYearList = document.getElementById('session-year-list');
+    const sessionsByYear = new Map();
+    sessions.forEach(({ year, session }) => {
+      if (!sessionsByYear.has(year)) sessionsByYear.set(year, []);
+      sessionsByYear.get(year).push(session);
+    });
+    sessionsByYear.forEach((yearSessions, year) => {
+      const row = document.createElement('div');
+      row.className = 'session-year-row';
+      const yearLabel = document.createElement('strong');
+      yearLabel.textContent = year + ' 年';
+      const options = document.createElement('div');
+      options.className = 'session-year-options';
+      yearSessions.forEach(session => {
+        const code = `${year}${String(session).padStart(2, '0')}`;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = `第 ${session} 次`;
+        button.setAttribute('aria-label', `選擇 ${year} 年第 ${session} 次題庫；不會自動跳頁`);
+        button.addEventListener('click', () => {
+          sessionSelect.value = code;
+          updateSessionLinks();
+        });
+        options.appendChild(button);
+      });
+      row.append(yearLabel, options);
+      sessionYearList.appendChild(row);
+    });
+
+    function updateSessionLinks() {
+      const bank = `${sessionSelect.value}_全科.txt`;
+      document.getElementById('session-review').href = reviewUrl(bank);
+      document.getElementById('session-exam').href = examUrl(bank);
+    }
+    sessionSelect.addEventListener('change', updateSessionLinks);
+    updateSessionLinks();
+
+
+  </script>
+</body>
+</html>
+

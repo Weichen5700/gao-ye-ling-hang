@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f7fb">
+  <meta name="description" content="萬用證照考試工具入口，包含理財規劃人員與證券商高級業務員歷屆題庫、複習與模擬考。">
+  <title>萬用證照考試工具｜複習中心</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #5d687a;
+      --line: #d8dee8;
+      --panel: #ffffff;
+      --page: #f5f7fb;
+      --primary: #1769aa;
+      --primary-dark: #0f4f82;
+      --secondary: #267a63;
+      --secondary-dark: #1c5e4b;
+      --focus: #c57c00;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { min-width: 320px; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background: var(--page);
+      font-family: Arial, "Microsoft JhengHei", sans-serif;
+      line-height: 1.65;
+    }
+
+    a { color: inherit; }
+
+    .page {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 40px;
+    }
+
+    header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .version {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    main { padding-top: 48px; }
+
+    .intro { max-width: 700px; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      line-height: 1.2;
+      letter-spacing: -0.03em;
+    }
+
+    .lead {
+      margin: 16px 0 0;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .bank-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 20px;
+      margin-top: 34px;
+    }
+
+    .bank {
+      display: flex;
+      flex-direction: column;
+      min-height: 280px;
+      padding: 26px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(23, 32, 51, 0.06);
+    }
+
+    .bank { border-top: 4px solid var(--primary); }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    h2 {
+      margin: 8px 0 0;
+      font-size: 1.45rem;
+      line-height: 1.35;
+    }
+
+    .count {
+      margin: 14px 0 0;
+      font-size: 1.45rem;
+      font-weight: 700;
+    }
+
+    .description {
+      margin: 8px 0 22px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 9px 15px;
+      color: #fff;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .bank .button { background: var(--primary); }
+    .bank .button:hover { background: var(--primary-dark); }
+
+    .note {
+      margin-top: 28px;
+      padding: 14px 16px;
+      color: var(--muted);
+      background: #eef2f7;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+
+    .learning-section {
+      margin-top: 38px;
+      padding-top: 30px;
+      border-top: 1px solid var(--line);
+    }
+
+    .learning-heading h2 {
+      margin: 5px 0 0;
+      font-size: 1.3rem;
+    }
+
+    .learning-heading p:last-child {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .three-pass-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .three-pass-card {
+      padding: 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    .three-pass-number {
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      color: #fff;
+      background: var(--primary);
+      border-radius: 50%;
+      font-weight: 700;
+    }
+
+    .three-pass-card h3 {
+      margin: 12px 0 5px;
+      font-size: 1.02rem;
+    }
+
+    .three-pass-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .daily-pick-guide {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: center;
+      margin-top: 18px;
+      padding: 18px 20px;
+      background: #eef7f4;
+      border: 1px solid #c6e1d8;
+      border-radius: 10px;
+    }
+
+    .daily-pick-orbit {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--secondary-dark);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .daily-pick-orbit span {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      place-items: center;
+      border: 3px solid var(--secondary);
+      border-radius: 50%;
+      background: #fff;
+      font-size: 0.8rem;
+    }
+
+    .daily-pick-guide h3 {
+      margin: 0;
+      font-size: 1.08rem;
+    }
+
+    .daily-pick-guide p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .learning-footnote {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .utility-section {
+      margin-top: 34px;
+    }
+
+    .utility-heading {
+      margin-bottom: 14px;
+    }
+
+    .utility-heading h2 {
+      margin: 5px 0 0;
+      font-size: 1.3rem;
+    }
+
+    .utility-heading p:last-child {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .utility-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .utility-card {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 20px;
+      color: var(--ink);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(23, 32, 51, 0.04);
+    }
+
+    .utility-card:hover {
+      border-color: #aab6c8;
+      background: #fbfcfe;
+    }
+
+    .utility-index {
+      display: grid;
+      width: 32px;
+      height: 32px;
+      place-items: center;
+      color: #fff;
+      background: var(--ink);
+      border-radius: 50%;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+
+    .utility-card h3 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+
+    .utility-card p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .utility-link {
+      color: var(--primary-dark);
+      font-size: 0.9rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    footer a { text-underline-offset: 3px; }
+
+    :focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 680px) {
+      .page { width: min(100% - 24px, 560px); padding-top: 20px; }
+      header { align-items: flex-start; flex-direction: column; gap: 4px; }
+      main { padding-top: 36px; }
+      .bank-grid { grid-template-columns: 1fr; }
+      .bank { min-height: 0; }
+      .utility-grid { grid-template-columns: 1fr; }
+      .utility-card { grid-template-columns: auto 1fr; }
+      .utility-link { grid-column: 2; }
+      .three-pass-grid { grid-template-columns: 1fr; }
+      .daily-pick-guide { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <p class="brand">萬用證照考試工具</p>
+      <span class="version">證照入口｜手機與 PC 共用</span>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <h1 id="page-title">從歷屆考古題開始複習</h1>
+        <p class="lead">選擇證照後進入對應題庫。現有理財規劃人員題庫與證券商高級業務員高業三科題庫，均沿用同一套離線複習、筆記與模擬考引擎。</p>
+      </section>
+
+      <section class="bank-grid" aria-label="題庫選擇">
+        <article class="bank">
+          <p class="eyebrow">理財規劃人員｜主題庫</p>
+          <h2>完整歷屆考古題</h2>
+          <p class="count">2,100 題</p>
+          <p class="description">包含理財工具與理財規劃實務兩科，題目、選項、公告答案與既有備註都從同一份題庫載入。</p>
+          <div class="actions">
+            <a class="button" href="複習.html">開始複習</a>
+            <a class="button" href="考試.html">開始模擬考</a>
+          </div>
+        </article>
+        <article class="bank" style="border-top-color:#267a63;">
+          <p class="eyebrow">證券商高級業務員｜高業</p>
+          <h2>三科進階準備題庫</h2>
+          <p class="count">5,550 題</p>
+          <p class="description">投資學、財務分析、證券交易相關法規與實務；涵蓋 105 年第 1 次至 115 年第 2 次，支援科目／場次練習、模擬考、本機 AI 生圖與圖像提示。</p>
+          <div class="actions">
+            <a class="button" href="證券商高級業務員.html" style="background:#267a63;">進入高業準備中心</a>
+            <a class="button" href="複習.html?bank=data%2F%E8%AD%89%E5%88%B8%E5%95%86%E9%AB%98%E7%B4%9A%E6%A5%AD%E5%8B%99%E5%93%A1%2F00_%E5%85%A8%E9%83%A8%E8%80%83%E5%8F%A4%E9%A1%8C.txt" style="background:#267a63;">複習全部考古題</a>
+          </div>
+        </article>
+      </section>
+
+      <section class="utility-section" aria-labelledby="utility-title">
+        <div class="utility-heading">
+          <p class="eyebrow">學習工具</p>
+          <h2 id="utility-title">複習工作台</h2>
+          <p>先安排每天要讀多少，再用不同模式反覆接觸同一批考題。</p>
+        </div>
+
+        <div class="utility-grid">
+          <a class="utility-card" href="複習計畫.html">
+            <span class="utility-index" aria-hidden="true">01</span>
+            <span>
+              <h3>讀書計畫</h3>
+              <p>依考試日期與題庫規模安排每日進度。</p>
+            </span>
+            <span class="utility-link">安排進度 →</span>
+          </a>
+
+          <a class="utility-card" href="output.html">
+            <span class="utility-index" aria-hidden="true">02</span>
+            <span>
+              <h3>理財規劃人員答案總覽</h3>
+              <p>一次瀏覽 00 全部考古題，適合列印、查找與快速掃讀。</p>
+            </span>
+            <span class="utility-link">開啟總覽 →</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="learning-section" aria-labelledby="learning-title">
+        <div class="learning-heading">
+          <p class="eyebrow">複習設計</p>
+          <h2 id="learning-title">同一題，安排三次接觸</h2>
+          <p>不是只看過一次就算完成，而是讓題目依序經過理解、回想與考試情境。</p>
+        </div>
+
+        <div class="three-pass-grid">
+          <article class="three-pass-card">
+            <span class="three-pass-number" aria-hidden="true">1</span>
+            <h3>先看答案</h3>
+            <p>第一次先建立題目、選項與正確答案的完整印象。</p>
+          </article>
+          <article class="three-pass-card">
+            <span class="three-pass-number" aria-hidden="true">2</span>
+            <h3>遮住答案再回想</h3>
+            <p>開啟標註模式，自己作答；答錯增加星星，答對逐步降低星星。</p>
+          </article>
+          <article class="three-pass-card">
+            <span class="three-pass-number" aria-hidden="true">3</span>
+            <h3>放進模擬考試</h3>
+            <p>最後在考試情境重新作答，確認自己不是只會看答案。</p>
+          </article>
+        </div>
+
+        <div class="daily-pick-guide">
+          <div class="daily-pick-orbit" aria-label="今日隨選比例">
+            <span>80%</span><b>＋</b><span>20%</span>
+          </div>
+          <div>
+            <h3>今日隨選：小範圍、7 秒一題</h3>
+            <p>可選 10、20 或 30 題。每次大約維持「80% 熟悉題＋20% 不熟悉題」；熟悉題包含尚未讀過的新題與已降到 0 顆星的題目，不熟悉題則是仍有 1～3 顆星的題目。</p>
+            <p>第一次從未讀過的題目答錯，直接設定為 2 顆星（中等）；之後答錯增加 2 顆、答對降低 1 顆。降到 0 顆後，就不再進入 20% 不熟悉循環；若任一池不足，系統會自動用其他題目補滿，不會因 80／20 而少於選定題數。</p>
+          </div>
+        </div>
+        <p class="learning-footnote">今日隨選是增加回想機會的遊戲化練習，不取代原本的每日複習計畫；首頁仍會依已複習狀態與星星更新進度。</p>
+      </section>
+
+      <p class="note">建議使用順序：先看答案建立理解，再遮住答案主動回想，最後進入模擬考確認自己能在考試情境作答。複習頁的筆記可只存於本機，也可設定 Cloudflare Worker 進行跨裝置同步。</p>
+    </main>
+
+    <footer>
+      <a href="複習.html">直接進入複習</a>
+      <a href="考試.html">直接進入模擬考</a>
+      <a href="證券商高級業務員.html">高業準備中心</a>
+      <a href="複習計畫.html">讀書計畫</a>
+      <a href="output.html">完整答案總覽</a>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,3300 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <!-- 禁用縮放以移除雙擊縮放功能 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>高業領航｜題庫複習</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/review.css">
+  <link rel="stylesheet" href="css/ai-memory.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <script src="js/cloud-sync-config.js"></script>
+  <script src="js/cloud-sync.js"></script>
+  <script src="js/cloud-notes.js"></script>
+  <script src="js/offline-question-banks.js"></script>
+  <script src="data/%E8%AD%89%E5%88%B8%E5%95%86%E9%AB%98%E7%B4%9A%E6%A5%AD%E5%8B%99%E5%93%A1/11502-image-memory-bank.js"></script>
+  <script src="data/%E8%AD%89%E5%88%B8%E5%95%86%E9%AB%98%E7%B4%9A%E6%A5%AD%E5%8B%99%E5%93%A1/11501-image-memory-bank.js"></script>
+  <script src="data/%E8%AD%89%E5%88%B8%E5%95%86%E9%AB%98%E7%B4%9A%E6%A5%AD%E5%8B%99%E5%93%A1/11403-image-memory-bank.js"></script>
+  <script src="data/%E8%AD%89%E5%88%B8%E5%95%86%E9%AB%98%E7%B4%9A%E6%A5%AD%E5%8B%99%E5%93%A1/11402-image-memory-bank.js"></script>
+  <script src="js/ai-memory-client.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['"Noto Sans TC"', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row mb-1">
+      <div class="col-12 progress-header" style="background-color: #e0f2fe; border: 1px solid #7dd3fc; border-radius: 0.5rem; display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+        <span style="position:relative; display:inline-flex; align-items:center; gap:0.3rem; margin-right:0.5rem;">
+          <strong style="color: #9A0036; font-size: 1.1rem; cursor:pointer;" id="toggle-checkboxes">考試工具</strong>
+          <span class="kb-hint-trigger" tabindex="0" title="快捷鍵提示"
+            style="display:inline-flex;align-items:center;justify-content:center;
+              width:1.1rem;height:1.1rem;border-radius:50%;
+              background:#9A0036;color:#fff;font-size:0.65rem;font-weight:700;
+              cursor:pointer;user-select:none;flex-shrink:0;">?</span>
+          <div class="kb-hint-popup" style="
+            display:none; position:absolute; top:calc(100% + 6px); left:0; z-index:2000;
+            background:#1e293b; color:#f1f5f9; border-radius:0.5rem;
+            padding:0.6rem 0.85rem; font-size:0.8rem; white-space:nowrap;
+            box-shadow:0 4px 20px rgba(0,0,0,0.35); line-height:1.8;
+            pointer-events:none;">
+            <div style="font-weight:700;margin-bottom:0.2rem;color:#fbbf24;">⌨️ 快捷鍵</div>
+            <div><kbd style="background:#334155;padding:1px 5px;border-radius:3px;">←</kbd> / <kbd style="background:#334155;padding:1px 5px;border-radius:3px;">→</kbd>　上 / 下一題</div>
+            <div><kbd style="background:#334155;padding:1px 5px;border-radius:3px;">Space</kbd>　顯示答案</div>
+            <div><kbd style="background:#334155;padding:1px 5px;border-radius:3px;">1</kbd> ~ <kbd style="background:#334155;padding:1px 5px;border-radius:3px;">9</kbd>　選擇選項</div>
+            <div><kbd style="background:#334155;padding:1px 5px;border-radius:3px;">Enter</kbd>　送出複選題</div>
+            <div style="margin-top:0.3rem;color:#94a3b8;">點擊「考試工具」可切換備註/筆記/圖片顯示</div>
+          </div>
+        </span>
+        <span style="display:inline-flex;align-items:center;gap:0.35rem;">
+          <strong>題號:</strong>
+          <span id="current-question">0</span>/<span id="total-questions">0</span>
+        </span>
+        <span id="header-score-badges" style="margin-left:0.4rem;display:inline-flex;gap:0.35rem;align-items:center;">
+          <span style="background:#dcfce7;color:#15803d;font-weight:600;padding:0.2rem 0.55rem;border-radius:9999px;border:1px solid #bbf7d0;font-size:0.8rem;">✔ 答對 <span id="header-correct-count">0</span></span>
+          <span style="background:#fee2e2;color:#b91c1c;font-weight:600;padding:0.2rem 0.55rem;border-radius:9999px;border:1px solid #fecaca;font-size:0.8rem;">✖ 答錯 <span id="header-incorrect-count">0</span></span>
+        </span>
+        <span style="margin-left: auto; display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+          <button class="btn btn-outline-primary" type="button" onclick="toggleReviewMatrix()" style="padding: 0.3rem 0.7rem; font-size: 0.85rem;" title="查看所有題目矩陣">📋 總覽</button>
+          <button class="btn btn-primary" type="button" onclick="showDataSourceChooser()" style="padding: 0.3rem 0.7rem; font-size: 0.85rem;">換題庫</button>
+          <button class="btn btn-warning" type="button" onclick="toggleCurrentNote()" style="padding: 0.3rem 0.7rem; font-size: 0.85rem;">筆記</button>
+          <button class="btn btn-success" type="button" onclick="toggleProgressPanel()" style="padding: 0.3rem 0.7rem; font-size: 0.85rem;">進度</button>
+          <button class="btn btn-info" type="button" onclick="toggleCloudSyncPanel()" style="padding: 0.3rem 0.7rem; font-size: 0.85rem;">
+            雲端設定
+          </button>
+          <button class="btn btn-secondary" type="button" onclick="toggleSettings()" style="padding: 0.3rem 0.7rem; font-size: 0.85rem;">
+            功能選單
+          </button>
+          <button id="darkModeBtn" class="btn btn-dark" onclick="toggleDarkMode()" style="padding: 0.3rem 0.7rem; font-size: 0.85rem;">
+            <i id="darkModeIcon" class="bi bi-moon-fill"></i>
+          </button>
+        </span>
+      </div>
+    </div>
+    <!-- ===== 設定選單 — 浮動面板 ===== -->
+    <div class="active-bank-scope" id="active-bank-scope" hidden aria-live="polite">
+      <div><span class="active-bank-kicker">目前複習範圍</span><strong id="active-bank-name"></strong><span id="active-bank-detail"></span></div>
+      <a href="index.html#subject-title">查看三科重點</a>
+    </div>
+    <div id="settingsOverlay" onclick="toggleSettings()"></div>
+    <div id="settingsPanel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+        <strong style="font-size:1.2rem;">功能選單</strong>
+        <button class="btn btn-secondary" onclick="toggleSettings()" style="padding:0.25rem 0.75rem;">✕</button>
+      </div>
+      <p class="settings-panel-intro">把常用的做題方式、顯示選項與篩選條件分開整理；篩選結果也可以直接在這裡匯出。</p>
+      <div class="settings-grid">
+        <section class="settings-section">
+          <h6>做題方式</h6>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="memoryModeToggle" onchange="toggleMemoryMode()">
+          <label class="form-check-label" for="memoryModeToggle">標註模式（遮住答案 + 記錄難度）</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="shuffleOptions" onchange="renderQuestion()">
+          <label class="form-check-label" for="shuffleOptions">打亂答案順序</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="randomOrder" onchange="toggleRandomOrder()">
+          <label class="form-check-label" for="randomOrder">亂數顯示題目</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="hideAnswers" onchange="toggleAnswerVisibility()">
+          <label class="form-check-label" for="hideAnswers">遮住答案</label>
+        </div>
+        <div class="jump-to">
+          <label for="jump-input">跳至題號：</label>
+          <input type="number" id="jump-input" placeholder="輸入題號" min="1">
+          <button class="btn btn-jump btn-primary" onclick="jumpToQuestion()">跳題</button>
+        </div>
+        </section>
+        <section class="settings-section">
+          <h6>顯示與標註</h6>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="hideRemark" onchange="toggleRemarkVisibility()" checked>
+          <label class="form-check-label" for="hideRemark">隱藏備註</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="hideFelo" onchange="toggleFeloVisibility()" checked>
+          <label class="form-check-label" for="hideFelo">隱藏筆記</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="hidePic" onchange="togglePicVisibility()">
+          <label class="form-check-label" for="hidePic">隱藏圖片</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="toggleHighlight" onchange="toggleHighlight()" checked>
+          <label class="form-check-label" for="toggleHighlight">關鍵字標示</label>
+        </div>
+        </section>
+        <section class="settings-section settings-section--filters">
+          <h6>篩選題目</h6>
+        <div>
+          <label for="categoryFilter">依類別：</label>
+          <select id="categoryFilter" class="form-select">
+            <option value="">全選</option>
+          </select>
+        </div>
+        <div>
+          <label for="keywordFilter">題目關鍵字：</label>
+          <input type="text" id="keywordFilter" class="form-control" placeholder="使用「+」代表AND，用「,」或「，」代表OR，用「!」或「-」代表NOT">
+        </div>
+        <div>
+          <label for="feloFilter">筆記關鍵字：</label>
+          <input type="text" id="feloFilter" class="form-control" placeholder="使用「+」代表AND，用「,」或「，」代表OR，用「!」或「-」代表NOT">
+        </div>
+        <div>
+          <label for="answerFilter">答案關鍵字：</label>
+          <input type="text" id="answerFilter" class="form-control" placeholder="使用「+」代表AND，用「,」或「，」代表OR，用「!」或「-」代表NOT">
+        </div>
+        <div>
+          <label for="questionTypeFilter">題型：</label>
+          <select id="questionTypeFilter" class="form-select">
+            <option value="">全部</option>
+            <option value="單選題">單選題</option>
+            <option value="複選題">複選題</option>
+          </select>
+        </div>
+        <div>
+          <label for="starFilter">星數：</label>
+          <select id="starFilter" class="form-select">
+            <option value="no-filter" selected>不篩選</option>
+            <option value="">全部</option>
+            <option value="1">1 顆星</option>
+            <option value="2">2 顆星</option>
+            <option value="3">3 顆星</option>
+          </select>
+        </div>
+        <div>
+          <label for="reviewLightFilter">複習燈號：</label>
+          <select id="reviewLightFilter" class="form-select">
+            <option value="">全部</option>
+            <option value="red">紅燈：未複習</option>
+            <option value="green">綠燈：已複習(無星)</option>
+            <option value="yellow">黃燈：已複習(有星)</option>
+          </select>
+        </div>
+        </section>
+        <section class="settings-section settings-section--export">
+          <h6>匯出</h6>
+          <div id="filter-download-container"></div>
+          <button class="btn btn-success" onclick="exportModifiedQuestions()" style="width:100%; padding: 0.5rem;">匯出目前篩選結果 (JSONL)</button>
+          <small class="settings-help">會附帶 localStorage 的複習燈號與星數。</small>
+        </section>
+      </div>
+    </div>
+    <div id="cloudSyncOverlay" onclick="toggleCloudSyncPanel(false)"></div>
+    <div id="cloudSyncPanel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+        <strong style="font-size:1.2rem;">☁️ 雲端設定</strong>
+        <button class="btn btn-secondary" onclick="toggleCloudSyncPanel(false)" style="padding:0.25rem 0.75rem;">✕</button>
+      </div>
+      <div id="cloudSyncContainer"></div>
+    </div>
+
+    <!-- ===== 進度統計面板 ===== -->
+    <div id="progressOverlay" onclick="toggleProgressPanel(false)"></div>
+    <div id="progressPanel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+        <strong style="font-size:1.2rem;">📊 複習進度統計</strong>
+        <button class="btn btn-secondary" onclick="toggleProgressPanel(false)" style="padding:0.25rem 0.75rem;">✕</button>
+      </div>
+      <div id="progressContent">
+        <div id="progress-loading" style="text-align:center;padding:2rem;color:#64748b;">載入中…</div>
+        <div id="progress-charts-container" style="display:none;">
+          <h6 style="font-weight:700;color:#374151;margin-bottom:0.5rem;">目前題庫進度（依科目）</h6>
+          <canvas id="progress-chart-1"></canvas>
+          <hr style="margin:1rem 0;">
+          <h6 style="font-weight:700;color:#374151;margin-bottom:0.5rem;">星星數量（依科目）</h6>
+          <canvas id="progress-chart-2"></canvas>
+          <div id="progress-summary" style="margin-top:1rem;font-size:0.9rem;line-height:1.8;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 題目總覽矩陣 面板 ===== -->
+    <div id="reviewMatrixOverlay" onclick="toggleReviewMatrix(false)"></div>
+    <div id="reviewMatrixPanel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+        <strong style="font-size:1.2rem;">📋 題目總覽導覽</strong>
+        <button class="btn btn-secondary" onclick="toggleReviewMatrix(false)" style="padding:0.25rem 0.75rem;">✕</button>
+      </div>
+      <div style="display:flex;gap:0.75rem;font-size:0.85rem;color:#64748b;margin-bottom:0.5rem;flex-wrap:wrap;">
+        <span>共 <strong id="matrix-review-total">0</strong> 題</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#dcfce7;border:1px solid #86efac;vertical-align:middle;margin-right:2px;"></span>已複習(無星)</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#fef9c3;border:1px solid #fde047;vertical-align:middle;margin-right:2px;"></span>已複習(有星)</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#fee2e2;border:1px solid #fca5a5;vertical-align:middle;margin-right:2px;"></span>未複習</span>
+      </div>
+      <div id="review-matrix-grid" class="review-matrix-grid"></div>
+    </div>
+
+    <!-- 舊計數容器保持隱藏供相容 -->
+    <div style="display:none;" class="answer-count-container">
+      <span id="correct-count">0</span>
+      <div id="difficulty-stars-container"></div>
+      <span id="incorrect-count">0</span>
+    </div>
+    <div class="row justify-content-center position-relative" style="margin: 0;">
+      <!-- 手機版按鈕：筆、搜、快 -->
+      <button class="mobile-note-btn" onclick="toggleMobileNotes()" title="切換筆記顯示">筆</button>
+      <button class="mobile-copy-search-btn" onclick="copyAndSearchFelo()">搜</button>
+      <button class="mobile-quick-btn" onclick="toggleQuickMode()">快</button>
+      <div class="question-wrapper" style="position: relative; width: 100%; margin: 0 auto; padding: 0 0.5rem;">
+        <div id="resume-progress-banner" class="resume-progress-banner" hidden></div>
+        <!-- 注意：question-container 內容會由 renderQuestion() 渲染，未載入前隱藏避免空白大方框 -->
+        <div id="question-container" class="question-block" style="display: none; position: relative;"></div>
+      </div>
+    </div>
+    <div class="row" style="margin: 0;">
+      <div class="col-12" id="data-source-container">
+        <div class="portal-lobby-card">
+          <div class="portal-header">
+            <div class="portal-badge">OFFLINE QUESTION BANK</div>
+            <h2 class="portal-title">證照題庫清單</h2>
+            <p class="portal-subtitle">選擇本機題庫後會在目前頁面直接切換，不會另開其他網站。</p>
+          </div>
+          <!-- 題庫動態選單由 renderCategoryButtons() 渲染注入 -->
+          <div id="category-dynamic-area"></div>
+          <div class="portal-footer-tools">
+            <details class="custom-file-collapse">
+              <summary class="custom-file-summary">📂 匯入本機自訂題庫檔 (.txt) 或查看說明</summary>
+              <div class="custom-file-body">
+                <input type="file" id="fileInput" accept=".txt" class="form-control" onchange="readFile()">
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+<!-- 右下角：橫排按鈕 -->
+<div id="copy-actions" class="copy-actions">
+  <button id="copy-only-button" class="btn btn-secondary" onclick="copyOnly();">複製</button>
+  <button id="copy-gpt-button" class="btn btn-warning" onclick="copyAndSearchGPT();">GPT</button>
+  <button id="copy-gemini-button" class="btn btn-success" onclick="copyAndSearchGemini();">Gemini</button>
+  <button id="copy-search-button" class="btn btn-info" onclick="copyAndSearchFelo();">Felo</button>
+</div>
+
+
+
+
+  <div class="fixed-buttons">
+    <button class="btn btn-primary" onclick="prevQuestion()">上一題</button>
+    <button class="btn btn-primary" onclick="nextQuestion()">下一題</button>
+  </div>
+  <div class="background-shapes">
+    <div class="shape" style="left: 5%; animation-duration: 12s;"></div>
+    <div class="shape" style="left: 15%; animation-duration: 10s;"></div>
+    <div class="shape" style="left: 25%; animation-duration: 14s;"></div>
+    <div class="shape" style="left: 35%; animation-duration: 11s;"></div>
+    <div class="shape" style="left: 45%; animation-duration: 13s;"></div>
+    <div class="shape" style="left: 55%; animation-duration: 12s;"></div>
+    <div class="shape" style="left: 65%; animation-duration: 15s;"></div>
+    <div class="shape" style="left: 75%; animation-duration: 9s;"></div>
+    <div class="shape" style="left: 85%; animation-duration: 16s;"></div>
+    <div class="shape" style="left: 95%; animation-duration: 10s;"></div>
+  </div>
+  <script>
+    // ===== 設定選單 開/關 =====
+    function setPanelOpen(overlayId, panelId, visible) {
+      document.getElementById(overlayId).classList.toggle('show', visible);
+      document.getElementById(panelId).classList.toggle('show', visible);
+    }
+
+    function toggleSettings(force) {
+      const overlay = document.getElementById('settingsOverlay');
+      const nextVisible = typeof force === 'boolean' ? force : !overlay.classList.contains('show');
+      if (nextVisible) {
+        setPanelOpen('cloudSyncOverlay', 'cloudSyncPanel', false);
+      }
+      setPanelOpen('settingsOverlay', 'settingsPanel', nextVisible);
+      updateFilterDownloadVisibility();
+    }
+
+    function toggleCloudSyncPanel(force) {
+      const overlay = document.getElementById('cloudSyncOverlay');
+      const nextVisible = typeof force === 'boolean' ? force : !overlay.classList.contains('show');
+      if (nextVisible) {
+        setPanelOpen('settingsOverlay', 'settingsPanel', false);
+      }
+      setPanelOpen('cloudSyncOverlay', 'cloudSyncPanel', nextVisible);
+    }
+
+    // 本機與伺服器均預設使用相對路徑，避免 file:// 被導向過期遠端倉庫
+    function getBaseUrl() {
+      return '';
+    }
+
+    // 基本功能程式碼（讀取題目、過濾、切換等）
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      const darkModeIcon = document.getElementById('darkModeIcon');
+      if (document.body.classList.contains('dark-mode')) {
+        darkModeIcon.classList.remove('bi-moon-fill');
+        darkModeIcon.classList.add('bi-sun-fill');
+      } else {
+        darkModeIcon.classList.remove('bi-sun-fill');
+        darkModeIcon.classList.add('bi-moon-fill');
+      }
+    }
+
+    let memoryMode = false;
+    let questions = [];
+    let filteredQuestions = [];
+    let currentIndex = 0;
+    let currentImgBase = 'img/';
+    let currentSourceKey = '';
+    let currentQuestionBankLabel = '';
+    let currentQuestionBankPath = '';
+    let dataLoadId = 0;
+    let cloudNotesLoadedSourceKey = '';
+
+    function getLocalNotes(sourceKey) {
+      try { return JSON.parse(localStorage.getItem('local_notes_' + sourceKey) || '{}'); }
+      catch { return {}; }
+    }
+    function setLocalNote(sourceKey, className, sn, text) {
+      const notes = getLocalNotes(sourceKey);
+      const key = className + '-' + sn;
+      if (text) notes[key] = text; else delete notes[key];
+      localStorage.setItem('local_notes_' + sourceKey, JSON.stringify(notes));
+    }
+    let randomOrder = false;
+    let randomIndices = [];
+    let answerRevealed = false;
+    let categories = [];
+    let isMultipleChoice = false;
+    let answered = false;
+    let quickMode = false;
+	let highlightEnabled = true;
+	
+    window.currentQuestion = null;
+
+    document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+    document.getElementById('keywordFilter').addEventListener('input', applyFilters);
+    document.getElementById('feloFilter').addEventListener('input', applyFilters);
+    document.getElementById('questionTypeFilter').addEventListener('change', applyFilters);
+    document.getElementById('answerFilter').addEventListener('input', applyFilters);
+    document.getElementById('starFilter').addEventListener('change', applyFilters);
+    document.getElementById('reviewLightFilter').addEventListener('change', applyFilters);
+
+    function getDisplayedQuestionAt(index) {
+      return filteredQuestions[randomOrder ? randomIndices[index] : index];
+    }
+
+    function updateProgress() {
+      if (filteredQuestions.length > 0){
+        const currentQuestion = getDisplayedQuestionAt(currentIndex);
+        const progressData = currentQuestion
+          ? { id: currentQuestion.class + '-' + formatSn(currentQuestion.sn) }
+          : null;
+        if (currentQuestionBankPath && progressData) {
+          localStorage.setItem('reviewProgress:v2:' + currentQuestionBankPath, JSON.stringify(progressData));
+        }
+      }
+      const banner = document.getElementById('resume-progress-banner');
+      if (banner) banner.hidden = true;
+    }
+
+    function offerResumeForCurrentBank() {
+      const banner = document.getElementById('resume-progress-banner');
+      if (!banner) return;
+      banner.hidden = true;
+      banner.replaceChildren();
+      if (!currentQuestionBankPath) return;
+      let savedProgress;
+      try {
+        savedProgress = JSON.parse(localStorage.getItem('reviewProgress:v2:' + currentQuestionBankPath) || 'null');
+      } catch (error) {
+        console.warn('讀取題庫進度失敗:', error);
+      }
+      const savedIndex = Array.from({ length: filteredQuestions.length }, (_, index) => index)
+        .findIndex(index => {
+          const q = getDisplayedQuestionAt(index);
+          return q && q.class + '-' + formatSn(q.sn) === savedProgress?.id;
+        });
+      if (savedIndex <= 0) {
+        updateProgress();
+        return;
+      }
+      const summary = document.createElement('span');
+      summary.textContent = `「${currentQuestionBankLabel}」上次停在第 ${savedIndex + 1} 題。`;
+      const actions = document.createElement('div');
+      actions.className = 'resume-progress-actions';
+      const continueButton = document.createElement('button');
+      continueButton.type = 'button';
+      continueButton.className = 'btn btn-primary btn-sm';
+      continueButton.textContent = `接續第 ${savedIndex + 1} 題`;
+      continueButton.addEventListener('click', () => {
+        currentIndex = savedIndex;
+        answered = false;
+        renderQuestion();
+        updateProgress();
+      });
+      const startButton = document.createElement('button');
+      startButton.type = 'button';
+      startButton.className = 'btn btn-outline-secondary btn-sm';
+      startButton.textContent = '從第 1 題開始';
+      startButton.addEventListener('click', () => {
+        currentIndex = 0;
+        answered = false;
+        renderQuestion();
+        updateProgress();
+      });
+      actions.append(continueButton, startButton);
+      banner.append(summary, actions);
+      banner.hidden = false;
+    }
+
+	function updateCopySearchButtonVisibility() {
+	  const isMobile = window.innerWidth <= 576;
+	  const col = document.getElementById('copy-actions');
+	  const legacy = document.getElementById('copy-search-button'); // 舊單顆
+	  if (col) col.style.display = isMobile ? 'none' : 'flex';
+	  // 若你哪裡還會動到單顆，就順帶隱藏它
+	  if (legacy && !col) legacy.style.display = isMobile ? 'none' : 'block';
+	}
+	window.addEventListener('load', updateCopySearchButtonVisibility);
+	window.addEventListener('resize', updateCopySearchButtonVisibility);
+
+    // ===== 共用：解析題目行 & 初始化 =====
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function parseQuestionLines(lines) {
+      return lines
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(line => {
+          const q = JSON.parse(line);
+          q.sn = formatSn(q.sn);
+          return q;
+        });
+    }
+
+    function enrichQuestions(parsedQuestions) {
+      return parsedQuestions.map(q => ({
+        ...q,
+        _sourceFelo: q.felo || '',
+        _sourcePic: q.pic || '',
+        _cloudImages: [],
+        _hasLocalDraft: false
+      }));
+    }
+
+    const highGradeImageMemoryCards = [
+      ...(window.HIGH_GRADE_11502_MEMORY || []).map(card => ({ ...card, examCode: '11502' })),
+      ...(window.HIGH_GRADE_11501_MEMORY || []).map(card => ({ ...card, examCode: '11501' })),
+      ...(window.HIGH_GRADE_11403_MEMORY || []).map(card => ({ ...card, examCode: '11403' })),
+      ...(window.HIGH_GRADE_11402_MEMORY || []).map(card => ({ ...card, examCode: '11402' }))
+    ];
+    const highGradeImageMemoryBySource = new Map(
+      highGradeImageMemoryCards.map(card => [
+        [card.examCode, card.subject, Number(card.questionNumber)].join('|'),
+        card
+      ])
+    );
+
+    function getHighGradeImageMemory(question) {
+      const source = question?.source;
+      if (!source?.examYear || !source?.examSession || !source?.subject || !source?.questionNumber) return null;
+      const rawYear = Number(source.examYear);
+      const rocYear = rawYear > 1911 ? rawYear - 1911 : rawYear;
+      const examCode = String(rocYear) + String(source.examSession).padStart(2, '0');
+      const key = [examCode, source.subject, Number(source.questionNumber)].join('|');
+      return highGradeImageMemoryBySource.get(key) || null;
+    }
+
+    function splitPicUrls(picString) {
+      return String(picString || '')
+        .split(',')
+        .map(url => url.trim())
+        .filter(Boolean);
+    }
+
+    function getEffectivePicString(question) {
+      const urls = [
+        ...splitPicUrls(question?._sourcePic || question?.pic || ''),
+        ...((question?._cloudImages || []).map(image => image.url))
+      ];
+      return [...new Set(urls)].join(',');
+    }
+
+    function toExportableQuestion(question) {
+      const sn = formatSn(question.sn);
+      const reviewed = isReviewed(question.class, sn);
+      const stars = getStarRating(question.class, sn);
+      return {
+        sn,
+        class: question.class,
+        question: question.question,
+        options: question.options,
+        remark: question.remark,
+        felo: question.felo || '',
+        pic: getEffectivePicString(question),
+        reviewed,
+        stars,
+        reviewLight: getReviewLightStatus(question.class, sn),
+      };
+    }
+
+    function getQuestionById(className, sn) {
+      return questions.find(q => q.class === className && formatSn(q.sn) === sn) || null;
+    }
+
+    function getCanonicalSourcePath(filePath) {
+      return filePath.replace(/^(data\/[^/]+)\/[^/]+$/, '$1/題庫.txt');
+    }
+
+    function applyCloudNotesToQuestions(notesMap) {
+      questions.forEach(q => {
+        const key = CloudNotes.buildQuestionKey(q.class, formatSn(q.sn));
+        const note = notesMap[key];
+        if (!q._hasLocalDraft) {
+          q.felo = note ? String(note.noteText ?? '') : (q._sourceFelo || '');
+        }
+        q._cloudImages = Array.isArray(note?.images) ? note.images : [];
+      });
+      preprocessHighlights();
+    }
+
+    async function loadCloudQuestionNotes(options = {}) {
+      const { force = false, showToast = false } = options;
+      if (!currentSourceKey || !window.CloudSync || !CloudSync.isConnected()) return false;
+      if (!force && cloudNotesLoadedSourceKey === currentSourceKey) return true;
+      const requestedSourceKey = currentSourceKey;
+      const requestedLoadId = dataLoadId;
+
+      try {
+        saveCurrentQuestionNote({ showToast: false, alwaysToast: false, persistCloud: false });
+        const payload = await CloudNotes.loadSourceNotes(requestedSourceKey);
+        if (requestedSourceKey !== currentSourceKey || requestedLoadId !== dataLoadId) return false;
+        applyCloudNotesToQuestions(payload.notes || {});
+        cloudNotesLoadedSourceKey = requestedSourceKey;
+        if (showToast) showCopyMessage('已載入雲端註記');
+        renderQuestion();
+        return true;
+      } catch (error) {
+        console.error('載入雲端註記失敗:', error);
+        if (showToast) showCopyMessage('雲端註記載入失敗');
+        return false;
+      }
+    }
+
+    function initQuestions(parsedQuestions) {
+      cloudNotesLoadedSourceKey = '';
+      correctCount = 0;
+      incorrectCount = 0;
+      answered = false;
+      answerRevealed = false;
+      window.currentQuestion = null;
+      document.getElementById('correct-count').textContent = '答對: 0';
+      document.getElementById('incorrect-count').textContent = '答錯: 0';
+      questions = enrichQuestions(parsedQuestions);
+      // 套用 localStorage 筆記作為基底（雲端載入後會覆蓋）
+      if (currentSourceKey) {
+        const localNotes = getLocalNotes(currentSourceKey);
+        questions.forEach(q => {
+          const key = q.class + '-' + formatSn(q.sn);
+          if (localNotes[key] !== undefined) {
+            q.felo = localNotes[key];
+            q._hasLocalDraft = true;
+          }
+        });
+      }
+      document.getElementById('total-questions').textContent = questions.length;
+      const bankScope = document.getElementById('active-bank-scope');
+      const bankName = (currentQuestionBankLabel || '目前題庫').replace(/_/g, ' ').replace(/^(\d{3})(\d{2}) 全科$/, '$1 年第 $2 次・全科');
+      document.getElementById('active-bank-name').textContent = bankName;
+      const bankSubjects = [...new Set(questions.map(q => q.source?.subject || q.class))];
+      document.getElementById('active-bank-detail').textContent = `${questions.length.toLocaleString('zh-TW')} 題・${bankSubjects.length > 4 ? `${bankSubjects.length} 個類別` : bankSubjects.join('／')}`;
+      bankScope.hidden = false;
+      randomIndices = [...Array(questions.length).keys()];
+      if (randomOrder) shuffle(randomIndices);
+      currentIndex = 0;
+      categories = [...new Set(questions.map(q => q.class))];
+      document.getElementById('toggle-checkboxes').textContent = currentQuestionBankLabel || (categories.length === 1 ? categories[0] : '考試複習');
+      filteredQuestions = [...questions];
+      populateCategoryFilter();
+      preprocessHighlights();
+      // 恢復遮住答案狀態 (置於首題渲染前，確保第一時間套用使用者偏好)
+      const storedHideAnswers = localStorage.getItem('hideAnswersState');
+      if (storedHideAnswers !== null) {
+        document.getElementById('hideAnswers').checked = (storedHideAnswers === 'true');
+      }
+      renderQuestion();
+      // 隱藏載入 UI
+      document.getElementById('data-source-container').style.display = 'none';
+      if (storedHideAnswers !== null) {
+        toggleAnswerVisibility();
+      }
+      offerResumeForCurrentBank();
+
+      loadCloudQuestionNotes().catch(console.error);
+    }
+
+    async function loadDataFile(filePath, label = '') {
+      await saveCurrentQuestionNote({ showToast: false, alwaysToast: false, persistCloud: true });
+      const loadId = ++dataLoadId;
+      try {
+        let loadedQuestions = null;
+        if (window.OfflineQuestionBanks) {
+          try {
+            loadedQuestions = await OfflineQuestionBanks.load(filePath);
+          } catch (offlineErr) {
+            console.warn('離線腳本載入警告，改嘗試 fetch:', offlineErr);
+          }
+        }
+        if (!loadedQuestions) {
+          const response = await fetch(getBaseUrl() + filePath, { cache: 'no-store' });
+          if (!response.ok) throw new Error('無法讀取本機檔案：' + filePath + ' (HTTP ' + response.status + ')');
+          const data = await response.text();
+          loadedQuestions = parseQuestionLines(data.split('\n'));
+        }
+        if (!loadedQuestions || !loadedQuestions.length) {
+          throw new Error('題庫檔案中無有效題目');
+        }
+        if (loadId !== dataLoadId) return;
+
+        currentQuestionBankLabel = label || filePath.split('/').pop().replace(/\.txt$/i, '');
+        currentQuestionBankPath = filePath;
+        currentSourceKey = CloudNotes.buildSourceKeyFromPath(getCanonicalSourcePath(filePath));
+        currentImgBase = 'img/' + filePath.replace(/^data\//, '').replace(/\.txt$/, '') + '/';
+        initQuestions(loadedQuestions);
+      } catch (error) {
+        console.error('載入失敗:', error);
+        alert('無法載入題庫：' + filePath + '\n原因: ' + error.message + '\n若為瀏覽器安全性限制，請確認各屆題庫檔案完整。');
+      }
+    }
+
+    // 自動讀取題庫清單並生成按鈕（支援分類）
+    function loadDataManifest({ autoLoadRequestedBank = true } = {}) {
+      const getManifestPromise = window.OfflineQuestionBanks?.manifest
+        ? Promise.resolve(window.OfflineQuestionBanks.manifest)
+        : fetch(getBaseUrl() + 'data/manifest.json', { cache: 'no-store' })
+            .then(r => r.json())
+            .catch(() => [DEFAULT_EXAM_CATEGORY]);
+
+      getManifestPromise
+        .then(manifest => {
+          const sortedManifest = [...manifest].sort((a, b) => {
+            if (a.category === '理財規劃人員') return -1;
+            if (b.category === '理財規劃人員') return 1;
+            return 0;
+          });
+          const availableCategories = sortedManifest.length > 0 ? sortedManifest : [DEFAULT_EXAM_CATEGORY];
+          const urlBank = new URLSearchParams(window.location.search).get('bank');
+          const requestedBank = currentQuestionBankPath || urlBank;
+          const requestedCategory = availableCategories.find(category =>
+            category.files.some(item => 'data/' + category.category + '/' + item.file === requestedBank)
+          );
+          const updatePortalCategoryLabel = category => {
+            const title = document.querySelector('.portal-title');
+            const badge = document.querySelector('.portal-badge');
+            const subtitle = document.querySelector('.portal-subtitle');
+            if (title) title.textContent = category.category + '題庫清單';
+            if (badge) badge.textContent = 'OFFLINE QUESTION BANK';
+            if (subtitle) subtitle.textContent = category.files.length + ' 份本機題庫；選擇後直接在目前頁面載入。';
+          };
+          const dynamicArea = document.getElementById('category-dynamic-area');
+          if (!dynamicArea) return;
+          dynamicArea.innerHTML = '';
+
+          if (availableCategories.length === 1) {
+            updatePortalCategoryLabel(availableCategories[0]);
+            document.getElementById('toggle-checkboxes').textContent = availableCategories[0].category;
+            renderCategoryButtons(dynamicArea, availableCategories[0]);
+          } else {
+            const selectWrap = document.createElement('div');
+            selectWrap.className = 'portal-category-select-wrap';
+            const select = document.createElement('select');
+            select.className = 'form-select portal-category-select';
+            availableCategories.forEach((cat, i) => {
+              const opt = document.createElement('option');
+              opt.value = i;
+              opt.textContent = `🎯 考科：${cat.category}（共 ${cat.files.length} 份題庫）`;
+              select.appendChild(opt);
+            });
+
+            const contentWrap = document.createElement('div');
+            contentWrap.id = 'category-buttons';
+
+            select.addEventListener('change', () => {
+              contentWrap.innerHTML = '';
+              if (select.value !== '') {
+                const selectedCat = availableCategories[select.value];
+                updatePortalCategoryLabel(selectedCat);
+                document.getElementById('toggle-checkboxes').textContent = selectedCat.category;
+                renderCategoryButtons(contentWrap, selectedCat);
+              }
+            });
+
+            selectWrap.appendChild(select);
+            dynamicArea.appendChild(selectWrap);
+            dynamicArea.appendChild(contentWrap);
+
+            const defaultCategoryIndex = availableCategories.findIndex(
+              category => category.category === (requestedCategory?.category || '證券商高級業務員')
+            );
+            const activeIndex = defaultCategoryIndex >= 0 ? defaultCategoryIndex : 0;
+            select.value = String(activeIndex);
+            updatePortalCategoryLabel(availableCategories[activeIndex]);
+            document.getElementById('toggle-checkboxes').textContent = availableCategories[activeIndex].category;
+            renderCategoryButtons(contentWrap, availableCategories[activeIndex]);
+          }
+          if (autoLoadRequestedBank && urlBank && requestedCategory) {
+            const requestedItem = requestedCategory.files.find(item =>
+              'data/' + requestedCategory.category + '/' + item.file === urlBank
+            );
+            if (requestedItem) loadDataFile(urlBank, requestedItem.label);
+          }
+        })
+        .catch(err => {
+          console.warn('manifest 載入失敗，使用預設題庫', err);
+          const dynamicArea = document.getElementById('category-dynamic-area');
+          if (dynamicArea) {
+            dynamicArea.innerHTML = '';
+            const title = document.querySelector('.portal-title');
+            const subtitle = document.querySelector('.portal-subtitle');
+            if (title) title.textContent = DEFAULT_EXAM_CATEGORY.category + '題庫清單';
+            if (subtitle) subtitle.textContent = '載入本機題庫清單中；若無法讀取，請確認 offline-question-bank.js 存在。';
+            document.getElementById('toggle-checkboxes').textContent = DEFAULT_EXAM_CATEGORY.category;
+            renderCategoryButtons(dynamicArea, DEFAULT_EXAM_CATEGORY);
+          }
+        });
+    }
+
+    function renderCategoryButtons(targetContainer, category) {
+      const wrap = document.createElement('div');
+      wrap.className = 'exam-category-wrap';
+
+      // 若目前已有題庫在做題中，提供返回做題按鈕
+      if (filteredQuestions.length > 0) {
+        const returnBar = document.createElement('div');
+        returnBar.style.cssText = 'text-align:right; margin-bottom: 1rem;';
+        returnBar.innerHTML = `<button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('data-source-container').style.display='none';" style="border-radius:9999px; padding:0.25rem 0.85rem;">✕ 關閉大廳，返回目前做題</button>`;
+        wrap.appendChild(returnBar);
+      }
+
+      if (category.category === '證券商高級業務員') {
+        const explanation = document.createElement('p');
+        explanation.className = 'portal-bank-explainer';
+        explanation.textContent = '全部 5,550 題＝三科各 1,850 題；37 場是同一批題目按場次查看。只練一科不會涵蓋另外兩科。';
+        wrap.appendChild(explanation);
+      }
+
+      const mainFiles = category.files.filter(f => f.file.startsWith('00_') || f.file.startsWith('01_') || ((f.file.startsWith('02_') || f.file.startsWith('03_')) && f.file.includes('全部')) || f.file.startsWith('04_近三次'));
+      const sessionFiles = category.files.filter(f => !mainFiles.includes(f));
+
+      if (mainFiles.length > 0) {
+        const h1 = document.createElement('div');
+        h1.className = 'portal-section-heading';
+        h1.textContent = '依範圍選題';
+        wrap.appendChild(h1);
+
+        const majorGrid = document.createElement('div');
+        majorGrid.className = 'portal-major-grid';
+
+        mainFiles.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'portal-card-btn' + (item.file.startsWith('00_') ? ' featured' : '');
+          
+          // 解析標籤中的題數
+          const countMatch = item.label.match(/（(.*?)）/);
+          const countText = countMatch ? countMatch[1] : '';
+          const cleanTitle = item.label.replace(/（.*?）/, '').trim();
+          const description = category.category !== '證券商高級業務員' ? ''
+            : item.file.startsWith('00_') ? '三科、全部 37 場'
+            : item.file.startsWith('04_') ? '三科、最近三場'
+            : '單科、全部 37 場';
+
+          card.innerHTML = `
+            <div class="portal-card-title">${escapeHtml(cleanTitle)}</div>
+            ${countText ? `<span class="portal-card-badge">📊 ${escapeHtml(countText)}</span>` : ''}
+            ${description ? `<span class="portal-card-description">${escapeHtml(description)}</span>` : ''}
+          `;
+          card.addEventListener('click', () => {
+            loadDataFile('data/' + category.category + '/' + item.file, item.label);
+          });
+          majorGrid.appendChild(card);
+        });
+        wrap.appendChild(majorGrid);
+      }
+
+      if (sessionFiles.length > 0) {
+        const h2 = document.createElement('div');
+        h2.className = 'portal-section-heading';
+        h2.innerHTML = '<span>📚 歷屆分次考古題</span><span style="font-size:0.8rem; font-weight:normal; color:#64748b;">完整 ' + sessionFiles.length + ' 場</span>';
+        wrap.appendChild(h2);
+
+        const sessionList = document.createElement('div');
+        sessionList.className = 'portal-session-years';
+        sessionList.setAttribute('aria-label', '105 至 115 年完整歷屆場次');
+        const sessionsByYear = new Map();
+        sessionFiles.forEach(item => {
+          const match = item.file.match(/^(\d{3})(\d{2})_全科\.txt$/);
+          const year = match ? match[1] : '歷屆';
+          if (!sessionsByYear.has(year)) sessionsByYear.set(year, []);
+          sessionsByYear.get(year).push(item);
+        });
+        sessionsByYear.forEach((items, year) => {
+          const yearRow = document.createElement('div');
+          yearRow.className = 'portal-session-year-row';
+          const yearLabel = document.createElement('strong');
+          yearLabel.className = 'portal-session-year-label';
+          yearLabel.textContent = /^\d{3}$/.test(year) ? year + ' 年' : year;
+          const sessionOptions = document.createElement('div');
+          sessionOptions.className = 'portal-session-options';
+          items.forEach(item => {
+            const match = item.file.match(/^(\d{3})(\d{2})_全科\.txt$/);
+            const sessionNumber = match ? Number(match[2].slice(1)) : null;
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'portal-session-option';
+            button.textContent = sessionNumber ? '第 ' + sessionNumber + ' 次・150 題' : item.label;
+            button.setAttribute('aria-label', '在目前頁面載入 ' + item.label);
+            button.addEventListener('click', () => {
+              loadDataFile('data/' + category.category + '/' + item.file, item.label);
+            });
+            sessionOptions.appendChild(button);
+          });
+          yearRow.append(yearLabel, sessionOptions);
+          sessionList.appendChild(yearRow);
+        });
+        wrap.appendChild(sessionList);
+      } else if (mainFiles.length === 0) {
+        const grid = document.createElement('div');
+        grid.className = 'portal-session-grid';
+        category.files.forEach(item => {
+          const btn = document.createElement('div');
+          btn.className = 'portal-session-btn';
+          btn.textContent = item.label;
+          btn.addEventListener('click', () => {
+            loadDataFile('data/' + category.category + '/' + item.file, item.label);
+          });
+          grid.appendChild(btn);
+        });
+        wrap.appendChild(grid);
+      }
+
+      targetContainer.appendChild(wrap);
+    }
+
+    const DEFAULT_EXAM_CATEGORY = (() => {
+      const sessions = [];
+      for (let year = 115; year >= 105; year--) {
+        const lastSession = year <= 109 ? 4 : year <= 114 ? 3 : 2;
+        for (let session = lastSession; session >= 1; session--) {
+          sessions.push({
+            file: `${year}${String(session).padStart(2, '0')}_全科.txt`,
+            label: `${year} 年第 ${session} 次（150 題）`
+          });
+        }
+      }
+      return {
+        category: '證券商高級業務員',
+        files: [
+          { file: '00_全部考古題.txt', label: '全部考古題（5,550 題）' },
+          { file: '01_投資學_全部.txt', label: '投資學（1,850 題）' },
+          { file: '02_財務分析_全部.txt', label: '財務分析（1,850 題）' },
+          { file: '03_證券交易相關法規與實務_全部.txt', label: '證券交易相關法規與實務（1,850 題）' },
+          { file: '04_近三次全科.txt', label: '近三次全科（450 題）' },
+          ...sessions
+        ]
+      };
+    })();
+
+    loadDataManifest();
+    // 雲端同步初始化
+    CloudSync.init().then(() => CloudSync.renderUI('cloudSyncContainer'));
+
+    window.addEventListener('cloudsync:status', event => {
+      if (event.detail?.connected && currentSourceKey) {
+        loadCloudQuestionNotes({ force: true }).catch(console.error);
+      }
+    });
+	
+	function isFormTypingTarget(target) {
+  if (!target) return false;
+  const tag = target.tagName;
+  return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable;
+}
+
+
+    
+    function showDataSourceChooser() {
+      const chooser = document.getElementById('data-source-container');
+      chooser.style.display = 'block';
+      loadDataManifest({ autoLoadRequestedBank: false });
+      chooser.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function readFile() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      if (!file) { alert('請選擇一個檔案'); return; }
+      const reader = new FileReader();
+      reader.onload = async function(event) {
+        try {
+          await saveCurrentQuestionNote({ showToast: false, alwaysToast: false, persistCloud: true });
+          dataLoadId++;
+          const content = event.target.result;
+          currentQuestionBankLabel = file.name;
+          currentSourceKey = await CloudNotes.buildSourceKeyForUpload(file, content);
+          currentQuestionBankPath = 'upload:' + currentSourceKey;
+          currentImgBase = 'img/';
+          initQuestions(parseQuestionLines(content.split('\n').filter(Boolean)));
+        } catch (error) {
+          alert('檔案格式錯誤，請確保每行是有效的 JSON');
+          console.error(error);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function parseFilterInput(input) {
+      const andKeywords = input.split('+').map(kw => kw.trim());
+      return andKeywords.map(andGroup => 
+        andGroup.split(/[,，]/).map(kw => {
+          if (kw.startsWith('!') || kw.startsWith('-')) {
+            return { type: 'NOT', keyword: kw.slice(1).trim() };
+          }
+          return { type: 'INCLUDE', keyword: kw.trim() };
+        }).filter(Boolean)
+      );
+    }
+
+    function populateCategoryFilter() {
+      const categoryFilter = document.getElementById('categoryFilter');
+      categoryFilter.innerHTML = '<option value="">全選</option>';
+      categories.forEach((category, index) => {
+        const option = document.createElement('option');
+        option.value = category;
+        const questionCount = questions.filter(q => q.class === category).length;
+        option.textContent = `${index + 1}. ${category} (${questionCount})`;
+        categoryFilter.appendChild(option);
+      });
+    }
+    
+    function getCorrectAnswerText(q) {
+      return q.options.filter(o => o.answer === true).map(o => o.option).join(' ');
+    }
+
+    function resetRandomIndices() {
+      randomIndices = [...Array(filteredQuestions.length).keys()];
+      if (randomOrder) shuffle(randomIndices);
+    }
+
+    function questionUsesMultiSelect(question) {
+      if (question?.answerPolicy === 'any-accepted') return false;
+      if (question?.answerPolicy === 'all-required') return true;
+      return (question?.options || []).filter(option => option.answer === true).length > 1;
+    }
+
+    function renderQuestion() {
+      saveCurrentQuestionNote({ showToast: false, alwaysToast: false, persistCloud: false });
+      const questionContainer = document.getElementById('question-container');
+      if (filteredQuestions.length === 0) {
+	  questionContainer.innerHTML = '<p>沒有符合篩選條件的題目。</p>';
+	  questionContainer.style.display = 'block';
+
+	  const feloBtn = document.getElementById('copy-search-button');
+	  if (feloBtn) feloBtn.disabled = true;   // 保持可見但不可點
+	  appendFontAdjuster();
+	  return;
+	}
+	const feloBtn = document.getElementById('copy-search-button');
+	if (feloBtn) feloBtn.disabled = false;    // 恢復可點
+      const isMobile = window.innerWidth <= 576;
+      questionContainer.style.display = 'block';
+      const q = filteredQuestions[randomOrder ? randomIndices[currentIndex] : currentIndex];
+      window.currentQuestion = q;
+      document.getElementById('current-question').textContent = currentIndex + 1;
+      document.getElementById('total-questions').textContent = filteredQuestions.length;
+      let options = [...q.options];
+      if (document.getElementById('shuffleOptions').checked) {
+        options = shuffleOptions(options);
+      }
+      isMultipleChoice = questionUsesMultiSelect(q);
+      const formattedSn = formatSn(q.sn);
+      const escapedClass = escapeHtml(q.class);
+      const hasRemark = !!(q.remark && q.remark.trim() && q.remark.trim() !== '無' && !q.remark.trim().endsWith(': 無'));
+      const hasFelo = !!(q.felo && q.felo.trim() && q.felo.trim() !== '無' && !q.felo.trim().endsWith(': 無'));
+      const effectivePics = getEffectivePicString(q);
+      const hasPic = !!(effectivePics && effectivePics.trim() && effectivePics.trim() !== '無');
+      const imageMemoryCard = getHighGradeImageMemory(q);
+      let html = `
+        <div class="question-content" style="position: relative;">
+          <div class="quiz-split-container" id="quiz-split-container">
+            <!-- 左欄：主要做題區 (題幹、選項、導覽操作、AI工具列) -->
+            <div class="quiz-primary-column">
+              <!-- 題目頂部資訊列：題號、類別、題型 與 狀態控制按鈕 -->
+              <div class="question-header-row">
+                <div class="question-meta-tags">
+                  <span class="q-sn-badge">第 ${escapeHtml(q.sn)} 題</span>
+                  <span class="q-class-badge">${escapedClass}</span>
+                  ${isMultipleChoice ? '<span class="q-type-badge multiple">複選題</span>' : q.answerPolicy === 'any-accepted' ? '<span class="q-type-badge single">單選・多答案可接受</span>' : '<span class="q-type-badge single">單選題</span>'}
+                </div>
+                <div class="card-status-badge-group" style="display:inline-flex; align-items:center; gap:0.5rem; background:#f8fafc; padding:0.35rem 0.75rem; border-radius:0.6rem; border:1px solid #e2e8f0; user-select:none;">
+                  <span id="font-adjuster-inline" style="display:inline-flex;gap:3px;align-items:center;border-right:1px solid #cbd5e1;padding-right:0.45rem;">
+                    <button type="button" id="btn-font-dec" title="縮小字體" style="width:23px;height:23px;border-radius:4px;border:1px solid #cbd5e1;background:#fff;color:#475569;font-size:0.72rem;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;">A-</button>
+                    <button type="button" id="btn-font-inc" title="放大字體" style="width:23px;height:23px;border-radius:4px;border:1px solid #cbd5e1;background:#fff;color:#475569;font-size:0.72rem;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;">A+</button>
+                  </span>
+                  <span id="card-difficulty-stars" style="font-size:1.35rem; color:gold; line-height:1; cursor:pointer;" onclick="cycleStarRating()" title="點擊切換星數 (快速鍵: S)"></span>
+                  <span id="card-review-light" style="display:inline-flex; align-items:center; font-size:0.82rem;"></span>
+                </div>
+              </div>
+
+              <!-- 題幹主文字：醒目清晰，字級以 em 隨縮放器比例聯動 -->
+              <h3 class="question-stem-text">
+                ${highlightText(q.question, q)}
+              </h3>
+
+              <!-- 主視覺：選項清單 (全寬整齊排列，題目與選項為核心) -->
+              <div class="options">
+               ${options.map((opt, i) => 
+                `<label class="option" data-answer="${opt.answer}" data-option-index="${i}" for="option-${i}">
+                  <span class="kb-badge">${i + 1}</span>
+                  <input type="${isMultipleChoice ? 'checkbox' : 'radio'}" name="review-answer-${currentIndex}" class="answer-checkbox" id="option-${i}" onchange="if(!isMultipleChoice) checkAnswer(this)">
+                  <span class="option-text">${escapeHtml(opt.option)}</span>
+                </label>`
+               ).join('')}
+              </div>
+
+              <!-- 題目卡片主要操作列 (對稱平衡佈局：左上一題、中答案開關與加星、右下一題) -->
+              <div class="review-card-actions-symmetrical">
+                <div class="review-nav-edge">
+                  <button type="button" class="btn-nav btn-prev" onclick="prevQuestion()" title="上一題 (快速鍵：← / PageUp)">← 上一題</button>
+                </div>
+                <div class="review-nav-center">
+                  <!-- 答案開關 (Toggle Switch) -->
+                  <div class="answer-toggle-container" id="answer-toggle-switch" onclick="toggleAnswerAction()" title="切換答案顯示/隱藏 (快速鍵：Space / A)">
+                    <span class="toggle-icon">👁️</span>
+                    <span class="toggle-title">答案</span>
+                    <div class="answer-switch-track">
+                      <div class="answer-switch-thumb"></div>
+                    </div>
+                    <span class="answer-toggle-status-badge" id="answer-toggle-status">隱藏</span>
+                  </div>
+
+                  <!-- 難度星數連點按鈕 (加強版循環) -->
+                  <button type="button" class="btn-star-cycle" id="card-star-btn" onclick="cycleStarRating()" title="難度星數連點輪替 (快速鍵：S)">
+                    <span class="star-icons">★</span>
+                    <span class="star-label">難度星數 (S)</span>
+                  </button>
+                </div>
+                <div class="review-nav-edge">
+                  <button type="button" class="btn-nav btn-next" onclick="nextQuestion()" title="下一題 (快速鍵：→ / PageDown)">下一題 →</button>
+                </div>
+              </div>
+              <div style="text-align:center; margin-top:0.75rem;">
+                <div class="review-shortcut-hint-group d-none d-lg-inline-flex">
+                  <span><kbd>← / →</kbd> 換題</span>
+                  <span><kbd>Space / A</kbd> 答案開關</span>
+                  <span><kbd>S</kbd> 難度星數</span>
+                  <span><kbd>1~4</kbd> 作答</span>
+                </div>
+              </div>
+
+              <!-- 次區塊：進階學習輔助與補充（次要操作） -->
+              <div class="secondary-workspace-area">
+                <div class="secondary-header-bar">
+                  <div class="secondary-ai-tools">
+                    <span class="secondary-label">AI 深度解題：</span>
+                    <button type="button" class="btn btn-outline-secondary" onclick="copyOnly();" title="複製題目與四大考點 AI 提詞">📋 複製提詞</button>
+                    <button type="button" class="btn btn-outline-info" onclick="copyImageMemoryPrompt();" title="複製保留正解與來源的本題圖像記憶提示">🖼️ 圖像記憶提示</button>
+                    <button type="button" class="btn btn-outline-warning" onclick="copyAndSearchGPT();" title="帶入四大考點提詞至 GPT">GPT</button>
+                    <button type="button" class="btn btn-outline-success" onclick="copyAndSearchGemini();" title="帶入四大考點提詞至 Gemini">Gemini</button>
+                    <button type="button" class="btn btn-outline-info" onclick="copyAndSearchFelo();" title="帶入四大考點提詞至 Felo">Felo</button>
+                  </div>
+                  <div class="secondary-note-toggle-box">
+                    <button id="current-note-toggle" class="btn btn-outline-primary note-btn" style="border-radius:0.4rem;padding:0.25rem 0.75rem;font-size:0.82rem;font-weight:600;">📝 展開考霸筆記本 (左右對照)</button>
+                  </div>
+                </div>
+
+                <div class="remark" style="display: ${hasRemark ? 'block' : 'none'};">
+                  <span style="font-weight:700;color:#64748b;margin-right:0.35rem;">📌 出處 / 備註:</span>
+                  <span>${escapeHtml(q.remark || '')}</span>
+                </div>
+
+                <div class="felo" style="display: ${hasFelo ? 'block' : 'none'};">
+                  <span style="font-weight:700;color:#16a34a;margin-right:0.35rem;">💡 筆記 / 解析:</span>
+                  <span>${escapeHtml(q.felo || '')}</span>
+                </div>
+
+                <div class="pic" style="display: ${hasPic ? 'block' : 'none'};">${renderPics(effectivePics, q.sn)}</div>
+                ${imageMemoryCard ? `
+                <figure class="inline-memory-card">
+                  <div class="inline-memory-artwork">
+                    <img src="${encodeURI(imageMemoryCard.image)}" alt="${escapeHtml(imageMemoryCard.memoryKey)} 圖像記憶卡" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false;">
+                    <div class="inline-memory-missing" hidden>此題圖像尚未補齊<br>記憶重點：${escapeHtml(imageMemoryCard.memoryKey)}</div>
+                  </div>
+                  <figcaption><strong>圖像記憶・${escapeHtml(imageMemoryCard.memoryKey)}</strong><span>${escapeHtml(imageMemoryCard.subject)}・${escapeHtml(imageMemoryCard.examCode)} 第 ${escapeHtml(imageMemoryCard.questionNumber)} 題</span></figcaption>
+                </figure>` : ''}
+                <div class="ai-memory-launch">
+                  <button type="button" id="open-ai-memory-card" class="btn btn-outline-info">🧠 本題 AI 記憶卡／生成圖片</button>
+                  <span>需要本機 AI Bridge；也可用上方「圖像記憶提示」貼到其他圖片生成器。</span>
+                </div>
+                <div id="ai-memory-box" class="ai-memory-slot" style="display:none;"></div>
+              </div>
+            </div>
+
+            <!-- 右欄：展開式考霸精華筆記本 (PC 寬螢幕左右對照，手機維持下方) -->
+            <div id="note-section-${escapedClass}-${formattedSn}" class="quiz-notebook-column note-section" style="display: none;">
+              <div class="study-memo-card">
+                <div class="memo-top-banner">
+                  <div class="memo-brand">
+                    <span>📖</span>
+                    <span>考霸精華筆記本</span>
+                    <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(第 ${escapeHtml(q.sn)} 題 · ${escapedClass})</span>
+                  </div>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleNotebookSplit('${escapedClass}', '${formattedSn}')" style="border-radius:9999px; padding:0.15rem 0.55rem; font-size:0.75rem;">✕ 收起</button>
+                </div>
+
+                <!-- 🤖 AI 深度解題直通車 (右上角筆記區塊專屬工具列，帶入四大核心考點提詞) -->
+                <div class="memo-ai-toolbar">
+                  <div class="memo-ai-toolbar-header">
+                    <span class="memo-ai-title">🤖 AI 深度解題（一鍵帶入四大考點提詞）：</span>
+                  </div>
+                  <div class="memo-ai-btn-group">
+                    <button type="button" class="btn-ai-card btn-ai-gpt" onclick="copyAndSearchGPT();" title="帶入四大考點提詞至 ChatGPT 深度解題">
+                      <span>🤖</span> <span>ChatGPT</span>
+                    </button>
+                    <button type="button" class="btn-ai-card btn-ai-gemini" onclick="copyAndSearchGemini();" title="帶入四大考點提詞至 Gemini 深度解題">
+                      <span>✨</span> <span>Gemini</span>
+                    </button>
+                    <button type="button" class="btn-ai-card btn-ai-felo" onclick="copyAndSearchFelo();" title="帶入四大考點提詞至 Felo 搜尋">
+                      <span>🔍</span> <span>Felo</span>
+                    </button>
+                    <button type="button" class="btn-ai-card btn-ai-copy" onclick="copyOnly();" title="複製題目與四大考點完整提詞到剪貼簿">
+                      <span>📋</span> <span>複製提詞</span>
+                    </button>
+                    <button type="button" class="btn-ai-card btn-ai-template" onclick="applyAiTemplate('${escapedClass}', '${formattedSn}')" title="一鍵在筆記中填入四大考點模組框架">
+                      <span>📝</span> <span>帶入四大模板</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 一鍵快捷插入考點標籤 -->
+                <div class="memo-quick-tags">
+                  <span style="font-size:0.75rem; color:#64748b; font-weight:600; margin-right:0.2rem;">快速標籤：</span>
+                  <button type="button" class="memo-tag-btn memo-tag-core" onclick="insertMemoTag('${escapedClass}', '${formattedSn}', '【💡核心考點】')">+ 核心考點</button>
+                  <button type="button" class="memo-tag-btn memo-tag-trap" onclick="insertMemoTag('${escapedClass}', '${formattedSn}', '【⚠️易錯陷阱】')">+ 易錯陷阱</button>
+                  <button type="button" class="memo-tag-btn memo-tag-formula" onclick="insertMemoTag('${escapedClass}', '${formattedSn}', '【🔢計算公式】')">+ 計算公式</button>
+                  <button type="button" class="memo-tag-btn memo-tag-rhyme" onclick="insertMemoTag('${escapedClass}', '${formattedSn}', '【🧠記憶口訣】')">+ 記憶口訣</button>
+                  <button type="button" class="memo-tag-btn" onclick="insertMemoTag('${escapedClass}', '${formattedSn}', '【📌歷屆常考】')">+ 歷屆常考</button>
+                </div>
+
+                <textarea class="memo-textarea" id="note-input-${escapedClass}-${formattedSn}" rows="10" placeholder="邊看左側題目與答案邊記錄要點... 支援按 Ctrl+V 貼上圖表">${escapeHtml(q.felo || '')}</textarea>
+
+                <div class="memo-media-hub">
+                  <div style="font-size:0.82rem; color:#475569; margin-bottom:0.4rem; display:flex; justify-content:space-between; align-items:center;">
+                    <span>🖼️ 圖表與觀點圖附件（支援直接 Ctrl+V 貼上）</span>
+                    <span id="note-upload-status-${escapedClass}-${formattedSn}" style="font-size:0.78rem; color:#64748b;"></span>
+                  </div>
+                  <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+                    <input type="file" id="note-file-${escapedClass}-${formattedSn}" accept="image/*" multiple style="display:none;">
+                    <button type="button" id="current-note-upload" class="btn btn-outline-secondary btn-sm" style="font-size:0.78rem;">📁 上傳圖片</button>
+                    <button type="button" id="ai-visual-btn-${escapedClass}-${formattedSn}" class="btn btn-outline-primary btn-sm" style="font-size:0.78rem;">✨ 生成 AI 觀點圖</button>
+                  </div>
+                  <div id="note-images-${escapedClass}-${formattedSn}" style="margin-top:0.6rem;">${renderNoteImageGallery(q)}</div>
+                </div>
+
+                <div class="memo-bottom-bar">
+                  <button type="button" class="memo-template-btn" onclick="applyAiTemplate('${escapedClass}', '${formattedSn}')" title="一鍵填入四大考點模組架構">✨ 帶入四大考點模板</button>
+                  <button type="button" id="current-note-save" class="memo-save-btn">💾 保存筆記</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      questionContainer.innerHTML = html;
+      questionContainer.querySelectorAll('.option').forEach((label, i) => {
+        label.dataset.text = options[i].option;
+      });
+      document.getElementById('current-note-toggle')?.addEventListener('click', () => toggleNotebookSplit(q.class, formattedSn));
+      const noteFile = document.getElementById(`note-file-${q.class}-${formattedSn}`);
+      noteFile?.addEventListener('change', () => handleNoteFileInput(q.class, formattedSn, noteFile));
+      document.getElementById('current-note-upload')?.addEventListener('click', () => noteFile?.click());
+      document.getElementById(`ai-visual-btn-${q.class}-${formattedSn}`)?.addEventListener('click', () => generateAiVisual(q.class, formattedSn));
+      document.getElementById('current-note-save')?.addEventListener('click', () => saveNote(q.class, formattedSn));
+      document.getElementById('open-ai-memory-card')?.addEventListener('click', async (event) => {
+        const button = event.currentTarget;
+        const box = document.getElementById('ai-memory-box');
+        if (!box) return;
+        box.style.display = 'block';
+        box.innerHTML = '<div class="ai-memory-loading">正在連線本機 AI 記憶服務…</div>';
+        button.disabled = true;
+        try {
+          if (!window.AiMemoryClient?.bindUI) throw new Error('找不到 AI 記憶卡元件。');
+          await window.AiMemoryClient.bindUI(q, box);
+        } catch (error) {
+          box.textContent = `AI 記憶服務無法開啟：${error.message || error}`;
+        } finally {
+          button.disabled = false;
+          box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      });
+      applyNotebookSplitUI(q.class, formattedSn);
+      if (isMultipleChoice) {
+        const submitButton = document.createElement('button');
+        submitButton.id = 'submit-button';
+        submitButton.classList.add('btn', 'btn-primary');
+        submitButton.textContent = '送出答案';
+        submitButton.onclick = checkMultipleChoice;
+        questionContainer.appendChild(submitButton);
+      }
+      bindCurrentQuestionNoteInteractions(q);
+      toggleAnswerVisibility();
+      toggleRemarkVisibility();
+      toggleFeloVisibility();
+      togglePicVisibility();
+      
+      renderDifficultyStars(q.class, formatSn(q.sn));
+      renderReviewLight(q.class, formatSn(q.sn));
+	  
+      if (quickMode) {
+        renderQuickNavigation(answered);
+      } else {
+        restoreFixedButtons();
+      }
+      updateCopySearchButtonVisibility();
+      appendFontAdjuster();
+    }
+
+    function renderNoteImageGallery(question) {
+      const images = question?._cloudImages || [];
+      if (!images.length) {
+        return `<div style="font-size:0.8rem; color:#94a3b8;">尚未上傳雲端圖片</div>`;
+      }
+
+      const allUrls = images.map(img => img.url);
+      const allUrlsJson = JSON.stringify(allUrls).replace(/"/g, '&quot;');
+
+      return `
+        <div style="display:flex; flex-direction:row; flex-wrap:nowrap; gap:0.6rem; overflow-x:auto; padding-bottom:0.25rem;">
+          ${images.map((image, idx) => {
+            const isAiVisual = image.kind === 'ai-visual';
+            const removeHandler = isAiVisual
+              ? `removeAiVisual('${question.class}', '${formatSn(question.sn)}', '${image.visualId || String(image.id).replace(/^ai-/, '')}')`
+              : `removeNoteImage('${question.class}', '${formatSn(question.sn)}', '${image.id}')`;
+            const label = isAiVisual ? 'AI 觀點圖' : '補充圖片';
+            const labelColor = isAiVisual ? '#4f46e5' : '#64748b';
+            return `
+            <div style="flex:0 0 auto; width:180px; border:1px solid #cbd5e1; border-radius:0.5rem; overflow:hidden; background:#fff;">
+              <div style="position:relative; cursor:zoom-in;" onclick="openImageLightbox(${idx}, '${allUrlsJson}')"
+                onmouseenter="this.querySelector('._zoom_icon').style.opacity=1"
+                onmouseleave="this.querySelector('._zoom_icon').style.opacity=0">
+                <img src="${image.url}" alt="note image" style="width:100%; height:135px; object-fit:cover; display:block;">
+                <div style="position:absolute; top:0.35rem; left:0.35rem; background:${labelColor}; color:white; font-size:0.7rem; padding:0.1rem 0.35rem; border-radius:0.35rem;">${label}</div>
+                <div class="_zoom_icon" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+                  background:rgba(0,0,0,0.32); opacity:0; transition:opacity 0.18s; pointer-events:none;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="white" viewBox="0 0 16 16">
+                    <path d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z"/>
+                    <path d="M10.344 11.742c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1A6.538 6.538 0 0 1 10.344 11.742z"/>
+                    <path d="M6.5 3a.5.5 0 0 1 .5.5V6h2.5a.5.5 0 0 1 0 1H7v2.5a.5.5 0 0 1-1 0V7H3.5a.5.5 0 0 1 0-1H6V3.5a.5.5 0 0 1 .5-.5z"/>
+                  </svg>
+                </div>
+              </div>
+              <div style="padding:0.3rem 0.4rem;">
+                <button class="btn btn-outline-danger btn-sm" style="width:100%; font-size:0.72rem; padding:0.1rem 0;"
+                  onclick="${removeHandler}">移除</button>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      `;
+    }
+    // ── Lightbox ────────────────────────────────────────────────
+    let _lbUrls = [];
+    let _lbIdx  = 0;
+
+    // 題目 pic 區塊用：動態收集可見圖片，避免 auto-path 失敗的空白項射入 lightbox
+    function openPicLightbox(el) {
+      const container = el.closest('.pic');
+      const wrappers = [...container.querySelectorAll('._pic_wrap')]
+        .filter(w => w.style.display !== 'none');
+      const urls = wrappers.map(w => w.querySelector('img').src);
+      const idx = Math.max(0, wrappers.indexOf(el));
+      openImageLightbox(idx, urls);
+    }
+
+    function openImageLightbox(idx, urlsJson) {
+      _lbUrls = Array.isArray(urlsJson) ? urlsJson : (typeof urlsJson === 'string' ? JSON.parse(urlsJson) : [urlsJson]);
+      _lbIdx  = Number(idx) || 0;
+      _renderLightbox();
+    }
+
+    function _renderLightbox() {
+      let overlay = document.getElementById('_img_lightbox_overlay');
+      const isNew = !overlay;
+      if (isNew) {
+        overlay = document.createElement('div');
+        overlay.id = '_img_lightbox_overlay';
+        overlay.style.cssText = `
+          position:fixed; inset:0; z-index:9999;
+          background:rgba(0,0,0,0);
+          display:flex; align-items:center; justify-content:center;
+          transition:background 0.22s;
+        `;
+        overlay.onclick = (e) => { if (e.target === overlay) _closeLightbox(); };
+        document.body.appendChild(overlay);
+        // ESC 關閉
+        overlay._kbHandler = (e) => { if (e.key === 'Escape') _closeLightbox(); else if (e.key === 'ArrowLeft') _lbNav(-1); else if (e.key === 'ArrowRight') _lbNav(1); };
+        document.addEventListener('keydown', overlay._kbHandler);
+        requestAnimationFrame(() => { overlay.style.background = 'rgba(0,0,0,0.92)'; });
+      }
+
+      const hasPrev = _lbIdx > 0;
+      const hasNext = _lbIdx < _lbUrls.length - 1;
+      const multiImage = _lbUrls.length > 1;
+
+      // 底部導覽列（多張時才顯示，不蓋住圖片）
+      const bottomNav = multiImage ? `
+        <div onclick="event.stopPropagation()" style="
+          position:fixed; bottom:1rem; left:50%; transform:translateX(-50%);
+          display:flex; align-items:center; gap:0.8rem; z-index:10001;
+        ">
+          <button onclick="_lbNav(-1)" ${!hasPrev ? 'disabled' : ''} style="
+            background:rgba(255,255,255,${hasPrev ? '0.15' : '0.05'});backdrop-filter:blur(6px);
+            border:1px solid rgba(255,255,255,0.2);color:${hasPrev ? '#fff' : 'rgba(255,255,255,0.25)'};
+            font-size:1.5rem;line-height:1;padding:0.25rem 0.7rem;
+            border-radius:0.5rem;cursor:${hasPrev ? 'pointer' : 'default'};transition:background 0.15s;
+          ">&#8249;</button>
+          <span style="color:rgba(255,255,255,0.7);font-size:0.9rem;min-width:3rem;text-align:center;">${_lbIdx + 1} / ${_lbUrls.length}</span>
+          <button onclick="_lbNav(1)" ${!hasNext ? 'disabled' : ''} style="
+            background:rgba(255,255,255,${hasNext ? '0.15' : '0.05'});backdrop-filter:blur(6px);
+            border:1px solid rgba(255,255,255,0.2);color:${hasNext ? '#fff' : 'rgba(255,255,255,0.25)'};
+            font-size:1.5rem;line-height:1;padding:0.25rem 0.7rem;
+            border-radius:0.5rem;cursor:${hasNext ? 'pointer' : 'default'};transition:background 0.15s;
+          ">&#8250;</button>
+        </div>` : '';
+
+      overlay.innerHTML = `
+        <div onclick="event.stopPropagation()" style="
+          display:flex; align-items:center; justify-content:center;
+          max-width:min(96vw, 1200px); max-height:88vh;
+          transform:scale(0.88); opacity:0;
+          transition:transform 0.22s cubic-bezier(.22,1,.36,1), opacity 0.22s;
+        " id="_lb_img">
+          <img src="${_lbUrls[_lbIdx]}" style="
+            display:block;
+            max-width:100%; max-height:88vh;
+            width:auto; height:auto;
+            border-radius:0.6rem;
+            box-shadow:0 20px 80px rgba(0,0,0,0.9);
+            object-fit:contain;
+          " onload="document.getElementById('_lb_img').style.transform='scale(1)';document.getElementById('_lb_img').style.opacity='1';">
+        </div>
+
+        <!-- 關閉 -->
+        <button onclick="_closeLightbox()"
+          style="position:fixed;top:0.9rem;right:0.9rem;
+          background:rgba(255,255,255,0.15);backdrop-filter:blur(6px);
+          border:1px solid rgba(255,255,255,0.2);color:#fff;
+          font-size:1.4rem;line-height:1;padding:0.2rem 0.6rem;
+          border-radius:0.5rem;cursor:pointer;z-index:10001;
+          transition:background 0.15s;"
+          onmouseenter="this.style.background='rgba(255,255,255,0.28)'"
+          onmouseleave="this.style.background='rgba(255,255,255,0.15)'">✕</button>
+
+        ${bottomNav}
+      `;
+    }
+
+    function _lbNav(dir) {
+      const next = _lbIdx + dir;
+      if (next < 0 || next >= _lbUrls.length) return;
+      _lbIdx = next;
+      const img = document.getElementById('_lb_img');
+      if (img) { img.style.transform = 'scale(0.88)'; img.style.opacity = '0'; }
+      setTimeout(() => _renderLightbox(), 120);
+    }
+
+    function _closeLightbox() {
+      const overlay = document.getElementById('_img_lightbox_overlay');
+      if (!overlay) return;
+      if (overlay._kbHandler) document.removeEventListener('keydown', overlay._kbHandler);
+      overlay.style.background = 'rgba(0,0,0,0)';
+      setTimeout(() => overlay.remove(), 220);
+    }
+
+    function bindCurrentQuestionNoteInteractions(question) {
+      const textarea = document.getElementById(`note-input-${question.class}-${formatSn(question.sn)}`);
+      if (!textarea) return;
+
+      textarea.addEventListener('paste', event => {
+        handleNotePaste(event, question.class, formatSn(question.sn));
+      });
+    }
+	
+	function highlightText(text, q) {
+	  const escapedText = escapeHtml(text);
+	  if (!highlightEnabled || !q._highlightRegex) return escapedText;
+	  return escapedText.replace(q._highlightRegex, '<span class="highlight">$1</span>');
+	}
+
+
+
+    function appendFontAdjuster() {
+      const oldAdjuster = document.getElementById('font-adjuster');
+      if (oldAdjuster) oldAdjuster.remove();
+
+      const questionContainer = document.getElementById('question-container');
+      const btnInc = document.getElementById('btn-font-inc');
+      const btnDec = document.getElementById('btn-font-dec');
+
+      if (btnInc && !btnInc._bound) {
+        btnInc._bound = true;
+        btnInc.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const cur = parseFloat(window.getComputedStyle(questionContainer).fontSize) || 16;
+          const next = Math.min(26, cur + 1);
+          questionContainer.style.fontSize = next + "px";
+          localStorage.setItem('customFontSize', next);
+        });
+      }
+
+      if (btnDec && !btnDec._bound) {
+        btnDec._bound = true;
+        btnDec.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const cur = parseFloat(window.getComputedStyle(questionContainer).fontSize) || 16;
+          const next = Math.max(13, cur - 1);
+          questionContainer.style.fontSize = next + "px";
+          localStorage.setItem('customFontSize', next);
+        });
+      }
+
+      const savedFontSize = localStorage.getItem('customFontSize');
+      if (savedFontSize && questionContainer) {
+        questionContainer.style.fontSize = savedFontSize + "px";
+      }
+    }
+
+
+    function formatSn(sn) {
+      return sn.toString().padStart(3, '0');
+    }
+
+    function insertMemoTag(className, sn, tagText) {
+      const textarea = document.getElementById(`note-input-${className}-${sn}`);
+      if (!textarea) return;
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const oldVal = textarea.value;
+      const prefix = (start > 0 && oldVal[start - 1] !== '\n') ? '\n' : '';
+      const insertStr = prefix + tagText + ' ';
+      textarea.value = oldVal.substring(0, start) + insertStr + oldVal.substring(end);
+      textarea.focus();
+      const newPos = start + insertStr.length;
+      textarea.setSelectionRange(newPos, newPos);
+    }
+
+    let isNotebookExpanded = localStorage.getItem('reviewNotebookExpanded') === 'true';
+
+    function toggleNotebookSplit(className, sn) {
+      isNotebookExpanded = !isNotebookExpanded;
+      localStorage.setItem('reviewNotebookExpanded', isNotebookExpanded);
+      applyNotebookSplitUI(className, sn);
+    }
+
+    function applyNotebookSplitUI(className, sn) {
+      const noteSection = document.getElementById(`note-section-${className}-${sn}`);
+      const container = document.getElementById('question-container');
+      const toggleBtn = document.getElementById('current-note-toggle');
+
+      if (isNotebookExpanded) {
+        if (noteSection) noteSection.style.display = 'block';
+        if (container) container.classList.add('notebook-split-active');
+        document.body.classList.add('notebook-split-body');
+        if (toggleBtn) {
+          toggleBtn.innerHTML = '<span>✕</span> <span>收起筆記對照</span>';
+          toggleBtn.className = 'btn btn-secondary note-btn';
+        }
+      } else {
+        if (noteSection) noteSection.style.display = 'none';
+        if (container) container.classList.remove('notebook-split-active');
+        document.body.classList.remove('notebook-split-body');
+        if (toggleBtn) {
+          toggleBtn.innerHTML = '<span>📝</span> <span>展開考霸筆記本 (左右對照)</span>';
+          toggleBtn.className = 'btn btn-outline-primary note-btn';
+        }
+      }
+    }
+
+    function toggleNoteSection(className, sn) {
+      toggleNotebookSplit(className, sn);
+    }
+
+    function applyAiTemplate(className, sn) {
+      if (!className || !sn) {
+        if (window.currentQuestion) {
+          className = window.currentQuestion.class;
+          sn = formatSn(window.currentQuestion.sn);
+        }
+      }
+      const textarea = document.getElementById(`note-input-${className}-${sn}`);
+      if (!textarea) return;
+      const template = 
+`【💡核心考點】：
+
+【⚠️易錯陷阱】：
+
+【🔢計算公式】：
+
+【🧠記憶口訣】：
+`;
+      if (textarea.value.trim()) {
+        textarea.value += (textarea.value.endsWith('\n') ? '\n' : '\n\n') + template;
+      } else {
+        textarea.value = template;
+      }
+      textarea.focus();
+      showCopyMessage('已填入四大考點結構模板！');
+    }
+
+    function saveCurrentQuestionNote(options = {}) {
+      if (!window.currentQuestion) return false;
+      return saveNote(window.currentQuestion.class, formatSn(window.currentQuestion.sn), options);
+    }
+
+    function setNoteUploadStatus(className, sn, message = '', color = '#64748b') {
+      const status = document.getElementById(`note-upload-status-${className}-${sn}`);
+      if (!status) return;
+      status.textContent = message;
+      status.style.color = color;
+    }
+
+    function refreshQuestionMedia(question) {
+      if (!question) return;
+      const isCurrentQuestion =
+        window.currentQuestion &&
+        window.currentQuestion.class === question.class &&
+        formatSn(window.currentQuestion.sn) === formatSn(question.sn);
+
+      if (isCurrentQuestion) {
+        const picElement = document.querySelector('.pic');
+        if (picElement) {
+          picElement.innerHTML = renderPics(getEffectivePicString(question), question.sn);
+        }
+      }
+
+      const gallery = document.getElementById(`note-images-${question.class}-${formatSn(question.sn)}`);
+      if (gallery) {
+        gallery.innerHTML = renderNoteImageGallery(question);
+      }
+    }
+
+    async function handleNotePaste(event, className, sn) {
+      const items = Array.from(event.clipboardData?.items || []);
+      const files = items
+        .filter(item => item.type && item.type.startsWith('image/'))
+        .map(item => item.getAsFile())
+        .filter(Boolean);
+
+      if (!files.length) return;
+      event.preventDefault();
+      await uploadNoteImages(className, sn, files);
+    }
+
+    async function handleNoteFileInput(className, sn, input) {
+      const files = Array.from(input.files || []);
+      if (!files.length) return;
+      await uploadNoteImages(className, sn, files);
+      input.value = '';
+    }
+
+    async function uploadNoteImages(className, sn, files) {
+      console.log('[upload] currentSourceKey:', currentSourceKey);
+      console.log('[upload] window.CloudSync exists:', !!window.CloudSync);
+      console.log('[upload] CloudSync.isConnected():', window.CloudSync?.isConnected());
+      console.log('[upload] CloudSync.hasApiUrl():', window.CloudSync?.hasApiUrl());
+      console.log('[upload] CloudSync.getApiBaseUrl():', window.CloudSync?.getApiBaseUrl());
+
+      if (!currentSourceKey) {
+        showCopyMessage('尚未識別題庫來源，無法上傳圖片');
+        return;
+      }
+
+      if (!window.CloudSync || !CloudSync.isConnected()) {
+        showCopyMessage('請先連線 Cloudflare，才能上傳圖片');
+        return;
+      }
+
+      const question = getQuestionById(className, sn);
+      if (!question) return;
+
+      setNoteUploadStatus(className, sn, '圖片上傳中…', '#2563eb');
+
+      try {
+        for (const file of files) {
+          const result = await CloudNotes.uploadQuestionImage({
+            sourceKey: currentSourceKey,
+            questionClass: className,
+            questionSn: sn,
+            file,
+          });
+          if (result?.id) {
+            question._cloudImages = [...(question._cloudImages || []), { id: result.id, url: result.url }];
+          }
+        }
+
+        refreshQuestionMedia(question);
+        setNoteUploadStatus(className, sn, '圖片已上傳並完成關聯', '#16a34a');
+        showCopyMessage('圖片已上傳');
+      } catch (error) {
+        console.error('圖片上傳失敗:', error);
+        setNoteUploadStatus(className, sn, `❌ ${error.message}`, '#dc2626');
+        showCopyMessage('圖片上傳失敗');
+      }
+    }
+
+    async function removeNoteImage(className, sn, imageId) {
+      if (!window.CloudSync || !CloudSync.isConnected()) {
+        showCopyMessage('請先連線 Cloudflare');
+        return;
+      }
+
+      const question = getQuestionById(className, sn);
+      if (!question) return;
+
+      setNoteUploadStatus(className, sn, '移除圖片中…', '#2563eb');
+
+      try {
+        await CloudNotes.deleteQuestionImage(imageId);
+        question._cloudImages = (question._cloudImages || []).filter(image => image.id !== imageId);
+        refreshQuestionMedia(question);
+        setNoteUploadStatus(className, sn, '圖片已移除', '#16a34a');
+        showCopyMessage('圖片已移除');
+      } catch (error) {
+        console.error('移除圖片失敗:', error);
+        setNoteUploadStatus(className, sn, '移除圖片失敗', '#dc2626');
+        showCopyMessage('移除圖片失敗');
+      }
+    }
+
+    function setAiVisualButtonBusy(className, sn, busy) {
+      const btn = document.getElementById(`ai-visual-btn-${className}-${sn}`);
+      if (!btn) return;
+      btn.disabled = busy;
+      btn.textContent = busy ? '生成中...' : '生成觀點圖';
+    }
+
+    async function generateAiVisual(className, sn) {
+      if (!currentSourceKey) {
+        showCopyMessage('尚未識別題庫來源，無法生成觀點圖');
+        return;
+      }
+
+      if (!window.CloudSync || !CloudSync.isConnected()) {
+        showCopyMessage('請先連線 Cloudflare，才能生成觀點圖');
+        return;
+      }
+
+      const question = getQuestionById(className, sn);
+      if (!question) return;
+
+      setAiVisualButtonBusy(className, sn, true);
+      setNoteUploadStatus(className, sn, 'AI 觀點圖生成中，通常需要數十秒...', '#4f46e5');
+
+      try {
+        await saveNote(className, sn, {
+          showToast: false,
+          alwaysToast: false,
+          persistCloud: true
+        });
+
+        const result = await CloudNotes.generateQuestionVisual({
+          sourceKey: currentSourceKey,
+          questionClass: className,
+          questionSn: sn,
+          questionText: question.question || '',
+          noteText: question.felo || '',
+          answerText: getCorrectAnswerText(question),
+          remark: question.remark || '',
+        });
+
+        if (result?.url) {
+          question._cloudImages = [
+            ...(question._cloudImages || []),
+            {
+              id: result.id ? `ai-${result.id}` : `ai-${Date.now()}`,
+              visualId: result.visualId || result.id,
+              kind: 'ai-visual',
+              url: result.url,
+              model: result.model,
+            }
+          ];
+          refreshQuestionMedia(question);
+        }
+
+        setNoteUploadStatus(className, sn, 'AI 觀點圖已生成', '#16a34a');
+        showCopyMessage('AI 觀點圖已生成');
+      } catch (error) {
+        console.error('AI 觀點圖生成失敗:', error);
+        setNoteUploadStatus(className, sn, `生成失敗：${error.message}`, '#dc2626');
+        showCopyMessage('AI 觀點圖生成失敗');
+      } finally {
+        setAiVisualButtonBusy(className, sn, false);
+      }
+    }
+
+    async function removeAiVisual(className, sn, visualId) {
+      if (!window.CloudSync || !CloudSync.isConnected()) {
+        showCopyMessage('請先連線 Cloudflare');
+        return;
+      }
+
+      const question = getQuestionById(className, sn);
+      if (!question) return;
+
+      setNoteUploadStatus(className, sn, '移除 AI 觀點圖中...', '#2563eb');
+
+      try {
+        await CloudNotes.deleteQuestionVisual(visualId);
+        question._cloudImages = (question._cloudImages || []).filter(image => {
+          const id = String(image.visualId || image.id || '').replace(/^ai-/, '');
+          return !(image.kind === 'ai-visual' && id === String(visualId));
+        });
+        refreshQuestionMedia(question);
+        setNoteUploadStatus(className, sn, 'AI 觀點圖已移除', '#16a34a');
+        showCopyMessage('AI 觀點圖已移除');
+      } catch (error) {
+        console.error('移除 AI 觀點圖失敗:', error);
+        setNoteUploadStatus(className, sn, '移除 AI 觀點圖失敗', '#dc2626');
+        showCopyMessage('移除 AI 觀點圖失敗');
+      }
+    }
+    async function saveNote(className, sn, options = {}) {
+      const {
+        showToast = true,
+        toastMessage = `題目 ${className}-${sn} 註記已保存`,
+        alwaysToast = true,
+        persistCloud = true
+      } = options;
+      const input = document.getElementById(`note-input-${className}-${sn}`);
+      if (!input) {
+        return false;
+      }
+      const question = questions.find(q => q.class === className && formatSn(q.sn) === sn);
+      if (question) {
+        const nextValue = input.value;
+        const hasChanged = (question.felo || '') !== nextValue;
+        question.felo = nextValue;
+
+        if (window.currentQuestion &&
+            window.currentQuestion.class === className &&
+            formatSn(window.currentQuestion.sn) === sn) {
+          window.currentQuestion.felo = nextValue;
+          const feloElement = document.querySelector('.felo');
+          if (feloElement) {
+            feloElement.textContent = `筆記: ${nextValue || '無'}`;
+          }
+        }
+
+        if (persistCloud && (!currentSourceKey || !window.CloudSync || !CloudSync.isConnected())) {
+          question._hasLocalDraft = true;
+          if (currentSourceKey) {
+            setLocalNote(currentSourceKey, className, sn, nextValue);
+          }
+          if (showToast && (hasChanged || alwaysToast)) {
+            showCopyMessage('筆記已暫存在目前裝置，尚未同步雲端');
+          }
+          return hasChanged;
+        }
+
+        if (persistCloud && currentSourceKey && window.CloudSync && CloudSync.isConnected()) {
+          try {
+            await CloudNotes.saveQuestionNote({
+              sourceKey: currentSourceKey,
+              questionClass: className,
+              questionSn: sn,
+              noteText: nextValue,
+            });
+            question._hasLocalDraft = false;
+          } catch (error) {
+            console.error('雲端筆記保存失敗:', error);
+            question._hasLocalDraft = true;
+            if (showToast) showCopyMessage('筆記已保存在畫面，但雲端保存失敗');
+            return hasChanged;
+          }
+        }
+
+        if (!persistCloud) {
+          question._hasLocalDraft = hasChanged || question._hasLocalDraft;
+        }
+
+        if (showToast && (hasChanged || alwaysToast)) {
+          showCopyMessage(toastMessage);
+        }
+        return hasChanged;
+      }
+      return false;
+    }
+
+    function exportModifiedQuestions() {
+      if (!filteredQuestions.length) {
+        alert('目前篩選結果沒有題目，沒有可匯出的內容。');
+        return;
+      }
+      const updatedData = filteredQuestions.map(q => JSON.stringify(toExportableQuestion(q))).join('\n');
+      const blob = new Blob([updatedData], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'filtered_updated_questions.jsonl';
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    
+
+    function toggleRandomOrder() {
+      randomOrder = document.getElementById('randomOrder').checked;
+      resetRandomIndices();
+      currentIndex = 0;
+      renderQuestion();
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    let correctCount = 0;
+    let incorrectCount = 0;
+
+    function toggleAnswerVisibility() {
+      const hideAnswers = document.getElementById('hideAnswers').checked;
+      localStorage.setItem('hideAnswersState', hideAnswers);
+      const options = Array.from(document.querySelectorAll('.option'));
+      const answerCountContainer = document.querySelector('.answer-count-container');
+      if (answerCountContainer) answerCountContainer.style.display = 'none';
+      if (!hideAnswers) {
+        correctCount = 0;
+        incorrectCount = 0;
+        updateAnswerCount();
+      }
+      answerRevealed = false;
+      const existingSubmitButton = document.getElementById('submit-button');
+      if (existingSubmitButton) {
+        existingSubmitButton.remove();
+      }
+      const isMultipleChoice = questionUsesMultiSelect(window.currentQuestion);
+
+      if (hideAnswers) {
+        options.forEach((option) => {
+          option.classList.remove('answer');
+          option.classList.remove('wrong');
+          const cb = option.querySelector('.answer-checkbox');
+          if (cb) {
+            cb.checked = false;
+            cb.disabled = false;
+          }
+        });
+        if (isMultipleChoice) {
+          const submitButton = document.createElement('button');
+          submitButton.id = 'submit-button';
+          submitButton.classList.add('btn', 'btn-primary', 'mt-2');
+          submitButton.textContent = '送出答案';
+          submitButton.onclick = checkMultipleChoice;
+          const actions = document.querySelector('.review-card-actions-symmetrical, .review-card-actions');
+          if (actions && actions.parentNode) {
+            actions.parentNode.insertBefore(submitButton, actions);
+          } else {
+            document.querySelector('.question-content')?.appendChild(submitButton);
+          }
+        }
+        updateAnswerSwitchUI(false);
+      } else {
+        options.forEach(option => {
+          const isAns = option.dataset.answer === 'true';
+          const cb = option.querySelector('.answer-checkbox');
+          if (isAns) {
+            option.classList.add('answer');
+            option.classList.remove('wrong');
+            if (cb) cb.checked = true;
+          } else {
+            option.classList.remove('answer');
+            option.classList.remove('wrong');
+            if (cb) cb.checked = false;
+          }
+        });
+        updateAnswerSwitchUI(true);
+      }
+    }
+
+    function checkAnswer(checkbox) {
+      const allCheckboxes = document.querySelectorAll('.answer-checkbox');
+      allCheckboxes.forEach(cb => cb.disabled = true);
+      const optionElement = checkbox.closest('.option');
+      const isCorrect = optionElement.dataset.answer === 'true';
+      if (!isCorrect) {
+        optionElement.classList.add('wrong');
+      }
+      showResult(isCorrect);
+	  if (window.currentQuestion) {
+		setReviewed(window.currentQuestion.class, formatSn(window.currentQuestion.sn));
+		renderReviewLight(window.currentQuestion.class, formatSn(window.currentQuestion.sn));
+		}
+    }
+
+    function checkMultipleChoice() {
+      const checkboxes = document.querySelectorAll('.answer-checkbox');
+      let allCorrect = true;
+      let anySelected = false;
+      checkboxes.forEach(checkbox => {
+        const optionElement = checkbox.closest('.option');
+        const isCorrect = optionElement.dataset.answer === 'true';
+        if (checkbox.checked) {
+          anySelected = true;
+          if (!isCorrect) {
+            allCorrect = false;
+            optionElement.classList.add('wrong');
+          }
+        }
+        if (!checkbox.checked && isCorrect) allCorrect = false;
+      });
+      if (!anySelected) {
+        alert('請選擇至少一個選項');
+        return;
+      }
+      checkboxes.forEach(checkbox => checkbox.disabled = true);
+      highlightCorrectOptions();
+      showResult(allCorrect);
+	  if (window.currentQuestion) {
+  setReviewed(window.currentQuestion.class, formatSn(window.currentQuestion.sn));
+  renderReviewLight(window.currentQuestion.class, formatSn(window.currentQuestion.sn));
+}
+
+      const submitButton = document.getElementById('submit-button');
+      if (submitButton) submitButton.remove();
+      answered = true;
+    }
+
+    function showResult(isCorrect) {
+      const resultMessage = document.createElement('div');
+      resultMessage.classList.add('result-message');
+      if (isCorrect) {
+        correctCount++;
+        resultMessage.textContent = '✔ 正確';
+        resultMessage.style.color = 'green';
+        resultMessage.style.backgroundColor = '#d4edda';
+      } else {
+        triggerWarning();
+        incorrectCount++;
+        resultMessage.textContent = '✖ 錯誤（已標記為待再複習）';
+        resultMessage.style.color = 'red';
+        resultMessage.style.backgroundColor = '#f8d7da';
+        if (window.currentQuestion) {
+          autoIncreaseDifficulty(window.currentQuestion.class, formatSn(window.currentQuestion.sn));
+        }
+      }
+      highlightCorrectOptions();
+      document.querySelector('.question-content').appendChild(resultMessage);
+      setTimeout(() => resultMessage.remove(), 2000);
+      updateAnswerCount();
+
+      if (window.currentQuestion) {
+        renderReviewLight(window.currentQuestion.class, formatSn(window.currentQuestion.sn));
+      }
+
+      if (quickMode) {
+        renderQuickNavigation(true);
+      }
+    }
+
+    function updateAnswerCount() {
+      const c = document.getElementById('correct-count');
+      const inc = document.getElementById('incorrect-count');
+      if (c) c.textContent = `${correctCount}`;
+      if (inc) inc.textContent = `${incorrectCount}`;
+      const hc = document.getElementById('header-correct-count');
+      const hinc = document.getElementById('header-incorrect-count');
+      if (hc) hc.textContent = `${correctCount}`;
+      if (hinc) hinc.textContent = `${incorrectCount}`;
+    }
+
+    function revealAnswer(event) {
+      if (event.target.closest('.option')) return;
+      if (!answerRevealed && document.getElementById('hideAnswers').checked) {
+        answerRevealed = true;
+        highlightCorrectOptions();
+      }
+      updateAnswerSwitchUI(true);
+
+	  if (window.currentQuestion) {
+        setReviewed(window.currentQuestion.class, formatSn(window.currentQuestion.sn));
+        renderReviewLight(window.currentQuestion.class, formatSn(window.currentQuestion.sn));
+      }
+    }
+
+    function renderPics(picString, sn) {
+      const items = [];
+      // 約定式自動尋圖：img/{category}/{file}/{sn}.jpg
+      if (sn) items.push({ src: `${currentImgBase}${sn}.jpg`, auto: true });
+      // 明確指定的圖片（JSON pic 欄位，逗號分隔多張）
+      if (picString) {
+        picString.split(',').map(u => u.trim()).filter(Boolean)
+          .forEach(u => items.push({ src: u, auto: false }));
+      }
+      if (items.length === 0) return '';
+
+      const allSrcs = JSON.stringify(items.map(i => i.src)).replace(/"/g, '&quot;');
+      const zoomSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="white" viewBox="0 0 16 16">
+            <path d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z"/>
+            <path d="M10.344 11.742c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1A6.538 6.538 0 0 1 10.344 11.742z"/>
+            <path d="M6.5 3a.5.5 0 0 1 .5.5V6h2.5a.5.5 0 0 1 0 1H7v2.5a.5.5 0 0 1-1 0V7H3.5a.5.5 0 0 1 0-1H6V3.5a.5.5 0 0 1 .5-.5z"/>
+          </svg>`;
+
+      return items.map((item, idx) => {
+        const onerrorAttr = item.auto
+          ? `onerror="this.closest('._pic_wrap').style.display='none'"`
+          : '';
+        return `<div class="_pic_wrap" style="position:relative; display:inline-block; cursor:zoom-in; margin:0.2rem 0.4rem 0.2rem 0; vertical-align:top;"
+            onclick="openPicLightbox(this)"
+            onmouseenter="this.querySelector('._zoom_icon').style.opacity=1"
+            onmouseleave="this.querySelector('._zoom_icon').style.opacity=0">
+          <img src="${item.src}" alt="圖片" loading="lazy" class="${item.auto ? 'auto-pic' : ''}" ${onerrorAttr}
+            style="max-width:100%; display:block;">
+          <div class="_zoom_icon" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+            background:rgba(0,0,0,0.32); opacity:0; transition:opacity 0.18s; pointer-events:none;">${zoomSvg}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function prevQuestion() {
+      if (filteredQuestions.length === 0) return;
+      if (currentIndex > 0) {
+        saveCurrentQuestionNote({
+          showToast: true,
+          toastMessage: '筆記已自動保存',
+          alwaysToast: false
+        });
+        currentIndex--;
+        answered = false;
+        renderQuestion();
+        updateProgress();
+      } else {
+        alert('已經是第一題了');
+      }
+    }
+
+    function nextQuestion() {
+      if (filteredQuestions.length === 0) return;
+      if (currentIndex < filteredQuestions.length - 1) {
+        saveCurrentQuestionNote({
+          showToast: true,
+          toastMessage: '筆記已自動保存',
+          alwaysToast: false
+        });
+        currentIndex++;
+        answered = false;
+        renderQuestion();
+        updateProgress();
+      } else {
+        alert('已經是最後一題了');
+      }
+    }
+
+    function jumpToQuestion() {
+      const input = document.getElementById('jump-input');
+      const index = parseInt(input.value, 10) - 1;
+      if (isNaN(index) || index < 0 || index >= filteredQuestions.length) {
+        alert('無效的題號');
+        return;
+      }
+      saveCurrentQuestionNote({
+        showToast: true,
+        toastMessage: '筆記已自動保存',
+        alwaysToast: false
+      });
+      currentIndex = index;
+      renderQuestion();
+      updateProgress();
+    }
+
+    function toggleReviewMatrix(force) {
+      const overlay = document.getElementById('reviewMatrixOverlay');
+      const panel = document.getElementById('reviewMatrixPanel');
+      const shouldOpen = typeof force === 'boolean' ? force : !panel.classList.contains('show');
+      overlay.classList.toggle('show', shouldOpen);
+      panel.classList.toggle('show', shouldOpen);
+      if (shouldOpen) {
+        renderReviewMatrix();
+      }
+    }
+
+    function renderReviewMatrix() {
+      const grid = document.getElementById('review-matrix-grid');
+      const totalEl = document.getElementById('matrix-review-total');
+      if (!grid) return;
+      grid.innerHTML = '';
+      if (totalEl) totalEl.textContent = filteredQuestions.length;
+
+      filteredQuestions.forEach((q, idx) => {
+        const tile = document.createElement('div');
+        tile.className = 'review-matrix-tile';
+        tile.id = `rev-tile-${idx}`;
+
+        const sn = formatSn(q.sn);
+        const rating = getStarRating(q.class, sn);
+        const reviewed = isReviewed(q.class, sn);
+
+        if (idx === currentIndex) {
+          tile.classList.add('current');
+        }
+        if (reviewed) {
+          tile.classList.add(rating > 0 ? 'reviewed-yellow' : 'reviewed-green');
+        } else {
+          tile.classList.add('unreviewed');
+        }
+
+        const numSpan = document.createElement('span');
+        numSpan.textContent = idx + 1;
+        tile.appendChild(numSpan);
+
+        if (rating > 0) {
+          const starSpan = document.createElement('span');
+          starSpan.className = 'star-badge';
+          starSpan.textContent = '★'.repeat(rating);
+          tile.appendChild(starSpan);
+        }
+
+        tile.addEventListener('click', () => {
+          jumpToIndex(idx);
+          toggleReviewMatrix(false);
+        });
+
+        grid.appendChild(tile);
+      });
+    }
+
+    function jumpToIndex(index) {
+      if (isNaN(index) || index < 0 || index >= filteredQuestions.length) return;
+      saveCurrentQuestionNote({
+        showToast: false,
+        alwaysToast: false
+      });
+      currentIndex = index;
+      answered = false;
+      renderQuestion();
+      updateProgress();
+    }
+
+    function cycleStarRating() {
+      if (!window.currentQuestion) return;
+      const q = window.currentQuestion;
+      const sn = formatSn(q.sn);
+      const key = `difficulty_${q.class}_${sn}`;
+      let currentRating = parseInt(localStorage.getItem(key)) || 0;
+      let newRating = (currentRating + 1) % 4; // 0 -> 1 -> 2 -> 3 -> 0
+      localStorage.setItem(key, newRating);
+      updateDifficultyStarsUI(q.class, sn);
+      renderReviewLight(q.class, sn);
+      showCopyMessage(`難度星數已更新為：${newRating === 0 ? '無星 (0)' : '★'.repeat(newRating) + ` (${newRating}星)`}`);
+    }
+
+    function updateAnswerSwitchUI(isRevealed) {
+      const switchEl = document.getElementById('answer-toggle-switch');
+      const statusLabel = document.getElementById('answer-toggle-status');
+      if (!switchEl) return;
+      if (isRevealed) {
+        switchEl.classList.add('active');
+        if (statusLabel) statusLabel.textContent = '顯示';
+      } else {
+        switchEl.classList.remove('active');
+        if (statusLabel) statusLabel.textContent = '隱藏';
+      }
+    }
+
+    function toggleAnswerAction() {
+      const hideCheckbox = document.getElementById('hideAnswers');
+      if (!hideCheckbox) return;
+
+      const currentHidden = hideCheckbox.checked;
+      const willHide = !currentHidden;
+      hideCheckbox.checked = willHide;
+      localStorage.setItem('hideAnswersState', willHide);
+      toggleAnswerVisibility();
+      showCopyMessage(willHide ? '已儲存設定：遮住答案（換題自動保持遮住）' : '已儲存設定：顯示答案（換題自動保持顯示）');
+    }
+
+    
+
+    document.getElementById('jump-input').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') { jumpToQuestion(); }
+    });
+
+    document.querySelectorAll('.fixed-buttons button, .jump-to button').forEach(button => {
+      button.addEventListener('click', function(event) { event.stopPropagation(); });
+    });
+
+    function toggleRemarkVisibility() {
+      const hideRemark = document.getElementById('hideRemark')?.checked ?? true;
+      const remarkElements = document.querySelectorAll('.remark');
+      remarkElements.forEach(remark => {
+        const contentSpan = remark.querySelector('span:nth-child(2)');
+        const text = contentSpan ? contentSpan.textContent.trim() : '';
+        const hasContent = text && text !== '無' && !text.endsWith(': 無');
+        remark.style.display = (hideRemark || !hasContent) ? 'none' : 'block';
+      });
+    }
+
+    function toggleFeloVisibility() {
+      const hideFelo = document.getElementById('hideFelo')?.checked ?? true;
+      const feloElements = document.querySelectorAll('.felo');
+      feloElements.forEach(felo => {
+        const contentSpan = felo.querySelector('span:nth-child(2)');
+        const text = contentSpan ? contentSpan.textContent.trim() : '';
+        const hasContent = text && text !== '無' && !text.endsWith(': 無');
+        felo.style.display = (hideFelo || !hasContent) ? 'none' : 'block';
+      });
+    }
+
+    function togglePicVisibility() {
+      const hidePic = document.getElementById('hidePic')?.checked ?? true;
+      const picElements = document.querySelectorAll('.pic');
+      picElements.forEach(pic => {
+        const hasImgs = pic.querySelectorAll('img').length > 0;
+        pic.style.display = (hidePic || !hasImgs) ? 'none' : 'block';
+      });
+      document.querySelectorAll('.inline-memory-card').forEach(card => {
+        card.style.display = hidePic ? 'none' : '';
+      });
+    }
+
+    function toggleMobileNotes() {
+      const hideRemarkCheckbox = document.getElementById('hideRemark');
+      hideRemarkCheckbox.checked = !hideRemarkCheckbox.checked;
+      toggleRemarkVisibility();
+    }
+
+    function triggerWarning() {
+      const quizContainer = document.getElementById('question-container');
+      quizContainer.classList.add('shake');
+      setTimeout(() => quizContainer.classList.remove('shake'), 1000);
+    }
+
+    document.getElementById('toggle-checkboxes').addEventListener('click', function() {
+      const hideRemarkCheckbox = document.getElementById('hideRemark');
+      const hideFeloCheckbox = document.getElementById('hideFelo');
+      const hidePicCheckbox = document.getElementById('hidePic');
+      hideRemarkCheckbox.checked = !hideRemarkCheckbox.checked;
+      hideFeloCheckbox.checked = !hideFeloCheckbox.checked;
+      hidePicCheckbox.checked = !hidePicCheckbox.checked;
+      toggleRemarkVisibility();
+      toggleFeloVisibility();
+      togglePicVisibility();
+    });
+
+    // 快捷鍵提示 hover
+    const kbTrigger = document.querySelector('.kb-hint-trigger');
+    const kbPopup   = document.querySelector('.kb-hint-popup');
+    if (kbTrigger && kbPopup) {
+      const show = () => kbPopup.style.display = 'block';
+      const hide = () => kbPopup.style.display = 'none';
+      kbTrigger.addEventListener('mouseenter', show);
+      kbTrigger.addEventListener('mouseleave', hide);
+      kbTrigger.addEventListener('focus', show);
+      kbTrigger.addEventListener('blur', hide);
+    }
+
+    document.getElementById('fileInput').addEventListener('change', function() {
+      updateCopySearchButtonVisibility();
+    });
+
+	function getAiPromptFullText() {
+	  const q = window.currentQuestion;
+	  const container = document.getElementById('question-container');
+	  const questionText = container?.querySelector(".question-stem-text")?.innerText || container?.querySelector("h3")?.innerText || (q?.question || '');
+	  const options = container ? container.querySelectorAll(".option") : [];
+	  
+	  let optionsText = "";
+	  let answerText = "";
+	  if (options.length > 0) {
+		options.forEach((option, idx) => {
+		  const dataText = option.getAttribute("data-text") || option.querySelector('.option-text')?.innerText || '';
+		  if (dataText) {
+			optionsText += `${idx + 1}. ${dataText}\n`;
+			if (option.dataset.answer === "true") {
+			  answerText += `${idx + 1}. ${dataText}\n`;
+			}
+		  }
+		});
+	  } else if (q && q.options) {
+		q.options.forEach((opt, idx) => {
+		  optionsText += `${idx + 1}. ${opt.option}\n`;
+		  if (opt.answer) answerText += `${idx + 1}. ${opt.option}\n`;
+		});
+	  }
+
+	  return `請針對以下理財規劃人員證照考題進行深度專業解析，並依序輸出四大核心模組（請嚴格依照此結構作答，方便考生速記複習）：
+
+【💡 核心考點】：剖析本題考核的關鍵法規條文、理財工具特性或核心定義。
+【⚠️ 易錯陷阱】：說明考生最容易選錯的誘答選項及盲點解析。
+【🔢 計算公式與步驟】（若為觀念/法規題請說明關鍵判斷準則）：列出精確運算公式、代入數值與步驟解析。
+【🧠 記憶口訣／速記】：提供一句好記、幽默或押韻的口訣，幫助秒殺此題。
+
+---
+【考科類別】：${q?.class || '理財規劃人員'} (第 ${q?.sn || ''} 題)
+【題目內容】：
+${questionText.trim()}
+
+【選項】：
+${optionsText.trim()}
+
+【公告答案】：
+${answerText.trim() || '（請根據題意分析並標示正確選項）'}
+---`;
+	}
+
+	function getCurrentQAFullText() {
+	  return getAiPromptFullText();
+	}
+
+	function ensureNotebookExpanded() {
+	  if (!isNotebookExpanded && window.currentQuestion) {
+	    isNotebookExpanded = true;
+	    localStorage.setItem('reviewNotebookExpanded', 'true');
+	    applyNotebookSplitUI(window.currentQuestion.class, formatSn(window.currentQuestion.sn));
+	  }
+	}
+
+	function copyOnly() {
+	  const fullText = getAiPromptFullText();
+	  const temp = document.createElement("textarea");
+	  temp.value = fullText;
+	  document.body.appendChild(temp);
+	  temp.select();
+	  document.execCommand("copy");
+	  document.body.removeChild(temp);
+	  showCopyMessage("已複製題目與四大考點 AI 深度解題提詞！");
+	}
+
+	function copyImageMemoryPrompt() {
+	  const q = window.currentQuestion;
+	  if (!q) return showCopyMessage('請先載入一道題目，再建立圖像記憶提示。');
+	  const letters = ['A', 'B', 'C', 'D'];
+	  const accepted = q.options
+	    .map((option, index) => option.answer === true ? `${letters[index]}. ${option.option}` : null)
+	    .filter(Boolean);
+	  const options = q.options.map((option, index) => `${letters[index]}. ${option.option}`).join('\n');
+	  const answerSource = q.source?.answerSource?.name || q.source?.answerSource?.file || '題庫答案來源欄';
+	  const answerRule = q.answerPolicy === 'any-accepted'
+	    ? '本題仍是單選；只要選取公告的任一可接受選項，即依公告規則給分。'
+	    : q.answerPolicy === 'all-required'
+	      ? '本題為複選；須完整選中所有正確選項且不多選。'
+	      : '本題為單選。';
+	  const prompt = `請為金融證照考生設計一張「一題一個記憶線索」的圖像記憶卡。先依題目、選項與公告答案抓出考點，不要改寫題意或自行推導不同答案。\n\n【題目】\n${q.question}\n\n【選項】\n${options}\n\n【公告可接受答案】\n${accepted.join('\n') || '未標示'}\n${answerRule}\n\n【來源】\n${q.remark || '題目來源見來源欄'}\n答案來源：${answerSource}\n\n圖片只呈現一個最重要的記憶關鍵：簡單名詞用一個清楚場景和短繁體中文標籤；計算題只放必要數字或一條簡短公式；複雜觀念最多用兩格漫畫呈現核心關係。不要把完整題目、所有選項、長解說或來源塞進畫面，也不要補造規則、數字或公式。只在圖片中使用題目、公告答案或已驗證考點裡的資訊；官方答案與來源由頁面另外顯示。`;
+	  const temp = document.createElement('textarea');
+	  temp.value = prompt;
+	  document.body.appendChild(temp);
+	  temp.select();
+	  const copied = document.execCommand('copy');
+	  document.body.removeChild(temp);
+	  showCopyMessage(copied ? '已複製本題圖像提示；會依題目選短標籤、公式卡或漫畫。' : '提示已準備，請手動複製後貼入圖片生成工具。');
+	}
+
+	function copyAndSearchGPT() {
+	  ensureNotebookExpanded();
+	  const fullText = getAiPromptFullText();
+	  const url = "https://chatgpt.com/?q=" + encodeURIComponent(fullText) + "&hints=search";
+	  const temp = document.createElement("textarea");
+	  temp.value = fullText;
+	  document.body.appendChild(temp);
+	  temp.select();
+	  document.execCommand("copy");
+	  document.body.removeChild(temp);
+	  showCopyMessage("已帶入四大考點提詞並以 GPT 深度解題！");
+	  window.open(url, "_blank");
+	}
+
+	function copyAndSearchGemini() {
+	  ensureNotebookExpanded();
+	  const fullText = getAiPromptFullText();
+	  const temp = document.createElement("textarea");
+	  temp.value = fullText;
+	  document.body.appendChild(temp);
+	  temp.select();
+	  document.execCommand("copy");
+	  document.body.removeChild(temp);
+	  showCopyMessage("四大考點提詞已複製！請在 Gemini 視窗中直接按 Ctrl+V 貼上");
+	  window.open("https://gemini.google.com/app", "_blank");
+	}
+
+	function copyAndSearchFelo() {
+	  ensureNotebookExpanded();
+	  const fullText = getAiPromptFullText();
+	  const temp = document.createElement("textarea");
+	  temp.value = fullText;
+	  document.body.appendChild(temp);
+	  temp.select();
+	  document.execCommand("copy");
+	  document.body.removeChild(temp);
+	  showCopyMessage("已帶入四大考點提詞並以 Felo 查詢！");
+	  const feloUrl = "https://felo.ai/search?q=" + encodeURIComponent(fullText);
+	  window.open(feloUrl, "_blank");
+	}
+
+	// 可傳訊息的小提示（向下相容）
+	function showCopyMessage(msg) {
+	  const message = document.createElement('div');
+	  message.textContent = msg || "文字已成功複製並搜尋！";
+	  message.style.cssText = `
+		position: fixed; bottom: 6rem; right: .625rem; background-color: #d4edda;
+		padding: .625rem; border-radius: .3125rem; color: green; font-weight: bold;
+		z-index: 1100;
+	  `;
+	  document.body.appendChild(message);
+	  setTimeout(() => message.remove(), 2000);
+	}
+
+
+
+    
+document.addEventListener('keydown', function (event) {
+  // 1) 有在輸入框打字就不處理
+  if (isFormTypingTarget(event.target)) return;
+
+  // 設定、雲端、進度、題目總覽或圖片視窗開啟時，不操作背景題目。
+  if (document.querySelector(
+    '#settingsPanel.show, #cloudSyncPanel.show, #progressPanel.show, #reviewMatrixPanel.show, #_img_lightbox_overlay'
+  )) return;
+
+  // 2) 有按 Ctrl / Alt / Meta（Win/Command）就不處理，避免干擾快捷鍵
+  if (event.ctrlKey || event.altKey || event.metaKey) return;
+
+  // 快捷鍵 S：快速標記 / 輪替難度星數 (0 -> 1 -> 2 -> 3 -> 0)
+  if (event.key === 's' || event.key === 'S') {
+    event.preventDefault();
+    cycleStarRating();
+    return;
+  }
+
+  // 快捷鍵 A：快速切換答案顯示
+  if (event.key === 'a' || event.key === 'A') {
+    event.preventDefault();
+    toggleAnswerAction();
+    return;
+  }
+
+  // 3) 左右方向鍵：切換題目；上下讓瀏覽器自然捲動
+  if (event.key === 'ArrowLeft') {
+    event.preventDefault();
+    prevQuestion();
+    return;
+  }
+  if (event.key === 'ArrowRight') {
+    event.preventDefault();
+    nextQuestion();
+    return;
+  }
+
+  // 4) PageUp / PageDown：同你原本設定
+  if (event.key === 'PageUp') {
+    event.preventDefault();
+    prevQuestion();
+    return;
+  }
+  if (event.key === 'PageDown') {
+    event.preventDefault();
+    nextQuestion();
+    return;
+  }
+
+  // 5) 空白鍵：切換答案開關（僅在不是輸入框時，支援顯示/重新遮住）
+  if (event.key === ' ') {
+    event.preventDefault(); // 避免頁面往下捲
+    toggleAnswerAction();
+    return;
+  }
+
+  // 6) 數字選項快捷鍵（1~9）：在「遮住答案」且尚未作答時生效
+  const isAnswerHidden = document.getElementById('hideAnswers')?.checked;
+  if (isAnswerHidden && !answered) {
+    const optionIndex = parseInt(event.key, 10) - 1; // '1' -> 0
+    if (!Number.isNaN(optionIndex) &&
+        filteredQuestions[currentIndex] &&
+        optionIndex >= 0 &&
+        optionIndex < filteredQuestions[currentIndex].options.length) {
+      const checkboxes = document.querySelectorAll('.answer-checkbox');
+      const targetCheckbox = checkboxes[optionIndex];
+      if (targetCheckbox) {
+        event.preventDefault();
+        if (isMultipleChoice) {
+          targetCheckbox.checked = !targetCheckbox.checked;
+        } else {
+          targetCheckbox.checked = true;
+          checkAnswer(targetCheckbox);
+          answered = true;
+        }
+      }
+    }
+  }
+
+  // 7) Enter：複選題送出
+  if (isMultipleChoice && event.key === 'Enter') {
+    const submitButton = document.getElementById('submit-button');
+    if (submitButton) {
+      event.preventDefault();
+      submitButton.click();
+    }
+  }
+});
+
+   
+
+    function shuffleOptions(options) {
+      const fixedOptions = options.filter(opt => /(皆是|皆否|皆對|皆錯|皆可|皆非|以上兩點皆須|以上皆須)/.test(opt.option));
+      const otherOptions = options.filter(opt => !/(皆是|皆否|皆對|皆錯|皆可|皆非|以上兩點皆須|以上皆須)/.test(opt.option));
+      for (let i = otherOptions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [otherOptions[i], otherOptions[j]] = [otherOptions[j], otherOptions[i]];
+      }
+      return [...otherOptions, ...fixedOptions];
+    }
+
+ function applyFilters() {
+  // 來源資料
+  let filtered = [...questions];
+
+  // 讀取所有篩選器值
+  const selectedCategory      = document.getElementById('categoryFilter').value;
+  const keywordInput          = document.getElementById('keywordFilter').value.trim();
+  const answerInput           = (document.getElementById('answerFilter')?.value || '').trim();
+  const feloInput             = document.getElementById('feloFilter').value.trim();
+  const selectedQuestionType  = document.getElementById('questionTypeFilter').value;
+  const selectedStars         = document.getElementById('starFilter').value;
+  const lightFilter           = document.getElementById('reviewLightFilter')
+                               ? document.getElementById('reviewLightFilter').value  // '', 'red', 'green', 'yellow'
+                               : '';
+
+  // 1) 類別
+  if (selectedCategory) {
+    filtered = filtered.filter(q => q.class === selectedCategory);
+  }
+
+  // 2) 題目關鍵字（AND + OR + NOT）
+  if (keywordInput) {
+    const keywordGroups = parseFilterInput(keywordInput);
+    filtered = filtered.filter(q =>
+      keywordGroups.every(group =>
+        group.some(({ type, keyword }) =>
+          type === 'INCLUDE' ? q.question.includes(keyword) : !q.question.includes(keyword)
+        )
+      )
+    );
+  }
+
+  // 3) 答案關鍵字（只看正確選項文字）
+  if (answerInput) {
+    const ansGroups = parseFilterInput(answerInput);
+    filtered = filtered.filter(q => {
+      const ansText = getCorrectAnswerText(q); // 你已定義
+      return ansGroups.every(group =>
+        group.some(({ type, keyword }) =>
+          type === 'INCLUDE' ? ansText.includes(keyword) : !ansText.includes(keyword)
+        )
+      );
+    });
+  }
+
+  // 4) 筆記關鍵字（felo）
+  if (feloInput) {
+    const feloKeywordGroups = parseFilterInput(feloInput);
+    filtered = filtered.filter(q =>
+      feloKeywordGroups.every(group =>
+        group.some(({ type, keyword }) =>
+          q.felo && (type === 'INCLUDE' ? q.felo.includes(keyword) : !q.felo.includes(keyword))
+        )
+      )
+    );
+  }
+
+  // 5) 題型（單選 / 複選）
+  if (selectedQuestionType) {
+    if (selectedQuestionType === "單選題") {
+      filtered = filtered.filter(q => !questionUsesMultiSelect(q));
+    } else if (selectedQuestionType === "複選題") {
+      filtered = filtered.filter(q => questionUsesMultiSelect(q));
+    }
+  }
+
+  // 6) 星數（localStorage: difficulty_{class}_{sn}）
+  if (selectedStars !== "no-filter") {
+    if (selectedStars === "") {
+      // 「全部」= 只要有 1~3 星都保留
+      filtered = filtered.filter(q => {
+        const key = `difficulty_${q.class}_${formatSn(q.sn)}`;
+        const rating = parseInt(localStorage.getItem(key)) || 0;
+        return rating >= 1 && rating <= 3;
+      });
+    } else {
+      // 指定某顆星
+      const starCount = parseInt(selectedStars);
+      filtered = filtered.filter(q => {
+        const key = `difficulty_${q.class}_${formatSn(q.sn)}`;
+        const rating = parseInt(localStorage.getItem(key)) || 0;
+        return rating === starCount;
+      });
+    }
+  }
+
+  // 7) 複習燈號（'', 'red', 'green', 'yellow'）
+  //    red = 未複習
+  //    green = 已複習但無星
+  //    yellow = 已複習且有星
+  if (lightFilter) {
+    filtered = filtered.filter(q => {
+      const sn = formatSn(q.sn);
+      const status = getReviewLightStatus(q.class, sn); // 需已定義：red/green/yellow
+      return status === lightFilter;
+    });
+  }
+
+  // 套用結果並重繪
+  filteredQuestions = filtered;
+  resetRandomIndices();
+  currentIndex = 0;
+  document.getElementById('total-questions').textContent = filteredQuestions.length;
+  renderQuestion();
+  updateFilterDownloadVisibility();
+}
+
+
+
+    function startinfo() {
+      window.location.href = 'info.html';
+    }
+
+    // ★★ 修正 toggleMemoryMode() ★★
+    function toggleMemoryMode() {
+      memoryMode = !memoryMode;
+      const cb = document.getElementById('memoryModeToggle');
+      if (cb) cb.checked = memoryMode;
+      document.getElementById('hideAnswers').checked = memoryMode;
+      toggleAnswerVisibility();
+      renderQuestion();
+    }
+    // ★★ 結束 ★★
+
+    // 快速切換當前題目筆記區
+    function toggleCurrentNote() {
+      if (!window.currentQuestion) return;
+      const q = window.currentQuestion;
+      const sectionId = `note-section-${q.class}-${formatSn(q.sn)}`;
+      const section = document.getElementById(sectionId);
+      if (section) {
+        section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        if (section.style.display === 'block') {
+          const textarea = section.querySelector('textarea');
+          if (textarea) textarea.focus();
+        }
+      }
+    }
+
+    function renderQuickNavigation(isDisabled = false) {
+      const fixedButtonsDiv = document.querySelector('.fixed-buttons');
+      const currentQuestion = filteredQuestions[randomOrder ? randomIndices[currentIndex] : currentIndex];
+      const numOptions = currentQuestion.options.length;
+      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      let rowHTML = `<div style="display: flex; gap: 8px; justify-content: space-between; align-items: center; width: 100%;">`;
+      rowHTML += `<button class="btn" onclick="prevQuestion()" style="font-size: 1.5rem;">←</button>`;
+      rowHTML += `<div style="display: flex; gap: 8px; flex-grow: 1; justify-content: center; align-items: center;">`;
+      const isMultiple = questionUsesMultiSelect(currentQuestion);
+      if (isMultiple) {
+        rowHTML += `<button class="btn" onclick="checkMultipleChoice()" ${isDisabled ? 'disabled' : ''} style="width: 40px; height: 40px; padding: 0; border-radius: 0; background-color: #a1cfff; color: white; font-size: 1.2rem;">■</button>`;
+      }
+      let colors = ["#ff9999", "#99ff99", "#9999ff", "#ffcc99", "#a1cfff"];
+      for (let i = 0; i < numOptions; i++) {
+        let color = colors[i % colors.length];
+        rowHTML += `<button class="btn" style="width: 40px; height: 40px; padding: 0; border-radius: 50%; font-size: 1rem; background-color: ${color}; color: white; display: flex; align-items: center; justify-content: center;" onclick="selectOption(${i})" ${isDisabled ? 'disabled' : ''}>${letters[i]}</button>`;
+      }
+      rowHTML += `</div>`;
+      rowHTML += `<button class="btn" onclick="nextQuestion()" style="font-size: 1.5rem;">→</button>`;
+      rowHTML += `</div>`;
+      fixedButtonsDiv.innerHTML = rowHTML;
+    }
+
+    function restoreFixedButtons() {
+      const fixedButtonsDiv = document.querySelector('.fixed-buttons');
+      fixedButtonsDiv.innerHTML = `
+        <button class="btn btn-primary" onclick="prevQuestion()">上一題</button>
+        <button class="btn btn-primary" onclick="nextQuestion()">下一題</button>
+      `;
+    }
+    
+    function highlightCorrectOptions() {
+      const options = document.querySelectorAll('.option');
+      options.forEach(option => {
+        if (option.dataset.answer === 'true') {
+          option.classList.add('answer');
+          option.classList.remove('wrong');
+          const cb = option.querySelector('.answer-checkbox');
+          if (cb) cb.checked = true;
+        }
+      });
+    }
+
+    function selectOption(optionIndex) {
+      const options = document.querySelectorAll('.option');
+      if (optionIndex < options.length) {
+        const optionElement = options[optionIndex];
+        const checkbox = optionElement.querySelector('.answer-checkbox');
+        if (checkbox) {
+          if (isMultipleChoice) { checkbox.checked = !checkbox.checked; }
+          else { checkbox.checked = true; checkAnswer(checkbox); }
+        }
+      }
+    }
+
+    function autoIncreaseDifficulty(className, sn) {
+      const key = `difficulty_${className}_${sn}`;
+      let currentRating = parseInt(localStorage.getItem(key)) || 0;
+      if (currentRating < 3) { currentRating++; localStorage.setItem(key, currentRating); }
+      updateDifficultyStarsUI(className, sn);
+    }
+
+function renderDifficultyStars(className, sn) {
+  const rating = getStarRating(className, sn);
+
+  // 1) 舊有頂部計數區星星容器
+  let starsHtml = '<div class="difficulty-stars">';
+  for (let i = 1; i <= 3; i++) {
+    starsHtml += `
+      <span
+        onclick="setDifficulty('${className}', '${sn}', ${i})"
+        style="
+          font-size:2.4rem;
+          margin-right:6px;
+          line-height:1;
+          cursor:pointer;
+          text-shadow:0 0 6px rgba(255,215,0,0.6);
+          display:inline-block;
+          padding:0 .15rem;
+          color:${i <= rating ? 'gold' : '#ccc'};
+        "
+        title="點擊設定為 ${i} 星"
+      >★</span>`;
+  }
+  starsHtml += '</div>';
+
+  const starsContainer = document.getElementById('difficulty-stars-container');
+  if (starsContainer) {
+    starsContainer.innerHTML = starsHtml;
+  }
+
+  // 2) 題目卡片右上角星號
+  const cardStars = document.getElementById('card-difficulty-stars');
+  if (cardStars) {
+    let cardStarsHtml = '';
+    for (let i = 1; i <= 3; i++) {
+      cardStarsHtml += `<span style="color:${i <= rating ? '#f59e0b' : '#cbd5e1'};margin-right:2px;">★</span>`;
+    }
+    cardStars.innerHTML = cardStarsHtml;
+    cardStars.title = `目前星數: ${rating} 顆星 (點擊輪替 / 快速鍵: S)`;
+  }
+
+  // 3) 卡片內「難度星數 (S)」連點循環按鈕
+  const cardStarBtn = document.getElementById('card-star-btn');
+  if (cardStarBtn) {
+    const starIcons = cardStarBtn.querySelector('.star-icons');
+    const starLabel = cardStarBtn.querySelector('.star-label');
+    if (rating > 0) {
+      cardStarBtn.className = 'btn-star-cycle starred';
+      if (starIcons) starIcons.textContent = '★'.repeat(rating);
+      if (starLabel) starLabel.textContent = `難度星數 (${rating}星)`;
+    } else {
+      cardStarBtn.className = 'btn-star-cycle';
+      if (starIcons) starIcons.textContent = '★';
+      if (starLabel) starLabel.textContent = '難度星數 (S)';
+    }
+  }
+}
+
+function setDifficulty(className, sn, ratingClicked) {
+  const key = `difficulty_${className}_${sn}`;
+  let currentRating = parseInt(localStorage.getItem(key)) || 0;
+  let newRating = (currentRating === ratingClicked) ? 0 : ratingClicked;
+  localStorage.setItem(key, newRating);
+  updateDifficultyStarsUI(className, sn);
+  renderReviewLight(className, sn);
+  showCopyMessage(`難度星數已更新為：${newRating === 0 ? '無星 (0)' : '★'.repeat(newRating) + ` (${newRating}星)`}`);
+}
+
+function updateDifficultyStarsUI(className, sn) {
+  renderDifficultyStars(className, sn);
+}
+
+function toggleQuestionNeedsReview() {
+  if (!window.currentQuestion) return;
+  const q = window.currentQuestion;
+  const sn = formatSn(q.sn);
+  const status = getReviewLightStatus(q.class, sn);
+  const key = `difficulty_${q.class}_${sn}`;
+  if (status === 'green') {
+    localStorage.setItem(key, '1');
+    setReviewed(q.class, sn);
+    showCopyMessage('已標記為：待再複習 (黃燈 / ★)');
+  } else {
+    localStorage.setItem(key, '0');
+    setReviewed(q.class, sn);
+    showCopyMessage('已標記為：已掌握 (綠燈 / 無星)');
+  }
+  updateDifficultyStarsUI(q.class, sn);
+  renderReviewLight(q.class, sn);
+}
+    
+    const swipeArea = window.innerWidth <= 576 ? document.body : document.getElementById('question-container');
+    let touchStartX = 0, touchEndX = 0;
+    let touchStartY = 0, touchEndY = 0;
+    const minSwipeDistance = 50;
+    swipeArea.addEventListener('touchstart', function(event) {
+      touchStartX = event.changedTouches[0].screenX;
+      touchStartY = event.changedTouches[0].screenY;
+    });
+    swipeArea.addEventListener('touchend', function(event) {
+      touchEndX = event.changedTouches[0].screenX;
+      touchEndY = event.changedTouches[0].screenY;
+      handleSwipe();
+    });
+    function handleSwipe() {
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = touchEndY - touchStartY;
+      if (Math.abs(deltaX) > minSwipeDistance && Math.abs(deltaX) > 2 * Math.abs(deltaY)) {
+        if (deltaX > 0) { prevQuestion(); } else { nextQuestion(); }
+      } else if (Math.abs(deltaY) > minSwipeDistance) { console.log(deltaY > 0 ? '向下滑動' : '向上滑動'); }
+    }
+    
+	function toggleHighlight() {
+	  highlightEnabled = document.getElementById('toggleHighlight').checked;
+	  document.documentElement.classList.toggle('no-highlight', !highlightEnabled);
+	  renderQuestion();
+	}
+
+
+
+	function toggleQuickMode() {
+      quickMode = !quickMode;
+      if (quickMode) {
+        document.getElementById('hideAnswers').checked = true;
+        toggleAnswerVisibility();
+        renderQuickNavigation();
+      } else {
+        document.getElementById('hideAnswers').checked = false;
+        toggleAnswerVisibility();
+        restoreFixedButtons();
+      }
+    }
+	
+	function escapeRegex(str) {
+	  return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+	}
+	function preprocessHighlights() {
+	  questions.forEach(q => {
+		const m = q.felo && q.felo.match(/key\s*:\s*([^\r\n]+)/i);
+		if (!m) {
+		  q._highlightRegex = null;
+		} else {
+		 const keys = m[1].split(/[，,]/).map(s => escapeRegex(s.trim())).filter(Boolean);
+		  q._highlightRegex = new RegExp(`(${keys.join('|')})`, 'g');
+		}
+	  });
+	}
+
+
+    // ★★ 下載／複製搜尋結果功能 ★★
+		function updateFilterDownloadVisibility() {
+		  const settingsPanel = document.getElementById('settingsPanel');
+		  const container = document.getElementById('filter-download-container');
+		  if (settingsPanel && settingsPanel.classList.contains('show')) {
+			container.innerHTML = `
+			  <div class="filtered-export-count">目前篩選結果：<strong>${filteredQuestions.length}</strong> 題</div>
+			  <input type="checkbox" id="includeOptionsCheckbox" checked style="margin-right:8px;">
+			  <label for="includeOptionsCheckbox" style="margin-right:15px;">包含選項</label>
+
+			  <input type="checkbox" id="exportFormatCheckbox" style="margin-right:8px;">
+			  <label for="exportFormatCheckbox" style="margin-right:15px;">用匯出格式(JSONL)</label>
+
+			  <button class="btn btn-success btn-sm" onclick="downloadFilteredResults()">下載結果</button>
+			  <button class="btn btn-info btn-sm ms-2" onclick="copyFilteredResults()">複製結果</button>
+			`;
+
+			// 勾選 JSONL 時，"包含選項" 對純文字輸出才有意義，這邊讓它灰掉
+			const exportCb = document.getElementById('exportFormatCheckbox');
+			const includeWrap = document.querySelector('label[for="includeOptionsCheckbox"]');
+			const includeCb = document.getElementById('includeOptionsCheckbox');
+			const syncIncludeState = () => {
+			  const on = exportCb.checked;
+			  includeCb.disabled = on;
+			  includeWrap.style.opacity = on ? '0.5' : '1';
+			};
+			exportCb.addEventListener('change', syncIncludeState);
+			syncIncludeState();
+		  } else {
+			container.innerHTML = '';
+		  }
+		}
+
+
+
+    
+    // ===== 共用：格式化題目文字 =====
+    function formatQuestionsAsText(questionsList, includeOptions) {
+      let text = "";
+      questionsList.forEach((q, index) => {
+        if (includeOptions) {
+          text += `NO:${index + 1}/${questionsList.length}\n`;
+          text += `題目 ${formatSn(q.sn)}: [${q.class}] ${q.question}\n`;
+          text += "選項：\n";
+          q.options.forEach((opt, i) => { text += `   ${i + 1}. ${opt.option}\n`; });
+          text += "正確答案：\n";
+          q.options.forEach((opt, i) => { if (opt.answer === true) text += `   ${i + 1}. ${opt.option}\n`; });
+          text += "\n";
+        } else {
+          let trimmed = q.question.trim();
+          if (!trimmed.endsWith("？") && !trimmed.endsWith("?")) trimmed += "？";
+          let answers = "";
+          q.options.forEach((opt, i) => { if (opt.answer === true) answers += `${i + 1}. ${opt.option} `; });
+          text += `NO:${index + 1}-${trimmed} 正確答案：${answers.trim()}\n`;
+        }
+      });
+      return text;
+    }
+
+		function downloadFilteredResults() {
+		  if (!filteredQuestions.length) {
+			alert('目前篩選結果沒有題目，沒有可匯出的內容。');
+			return;
+		  }
+		  const useJsonl = document.getElementById('exportFormatCheckbox')?.checked;
+		  if (useJsonl) {
+			const jsonl = filteredQuestions.map(q => JSON.stringify(toExportableQuestion(q))).join('\n');
+			const blob = new Blob([jsonl], { type: 'text/plain' });
+			const link = document.createElement('a');
+			link.href = URL.createObjectURL(blob);
+			link.download = 'filtered_updated_questions.jsonl';
+			link.click();
+			URL.revokeObjectURL(link.href);
+			return;
+      }
+      const includeOptions = document.getElementById('includeOptionsCheckbox').checked;
+      const textOutput = formatQuestionsAsText(filteredQuestions, includeOptions);
+      const blob = new Blob([textOutput], { type: 'text/plain' });
+      const link = document.createElement('a');
+		  link.href = URL.createObjectURL(blob);
+		  link.download = 'filtered_questions.txt';
+		  link.click();
+		  URL.revokeObjectURL(link.href);
+		}
+
+		function copyFilteredResults() {
+		  if (!filteredQuestions.length) {
+			alert('目前篩選結果沒有題目，沒有可複製的內容。');
+			return;
+		  }
+		  if (document.getElementById('exportFormatCheckbox')?.checked) {
+			const jsonl = filteredQuestions.map(q => JSON.stringify(toExportableQuestion(q))).join('\n');
+			navigator.clipboard?.writeText(jsonl).then(() => alert('已複製篩選後 JSONL 結果到剪貼簿！'));
+			return;
+		  }
+      const includeOptions = document.getElementById('includeOptionsCheckbox').checked;
+      const textOutput = formatQuestionsAsText(filteredQuestions, includeOptions);
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = textOutput;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempTextArea);
+      alert('已複製搜尋結果到剪貼簿！');
+    }
+
+
+    
+    // (overlay 開/關由 toggleSettings() 驅動，不再使用 Bootstrap collapse 事件)
+    // ★★ 結束 ★★
+    
+	// ===== 複習燈號（紅/綠/黃） =====
+function reviewKey(className, sn){ return `reviewed_${className}_${sn}`; }
+function isReviewed(className, sn){ 
+  const val = localStorage.getItem(reviewKey(className, sn));
+  return val === '1' || val === 'true'; 
+}
+function setReviewed(className, sn){ localStorage.setItem(reviewKey(className, sn), '1'); }
+function getStarRating(className, sn){
+  return parseInt(localStorage.getItem(`difficulty_${className}_${sn}`)) || 0;
+}
+// 狀態：red(未複習) / green(已複習無星) / yellow(已複習有星)
+function getReviewLightStatus(className, sn){
+  if (!isReviewed(className, sn)) return 'red';
+  return getStarRating(className, sn) > 0 ? 'yellow' : 'green';
+}
+
+// 確保有燈號插槽（放在星星右邊）
+function ensureReviewLightSlot(){
+  if (!document.getElementById('review-light-container')) {
+    const wrap = document.querySelector('.answer-count-container');
+    if (!wrap) return;
+    const div = document.createElement('div');
+    div.id = 'review-light-container';
+    div.style.display = 'inline-block';
+    div.style.verticalAlign = 'middle';
+    div.style.marginLeft = '8px';
+    // 插在「答錯」之前，跟星星同一列
+    const incorrect = document.getElementById('incorrect-count');
+    wrap.insertBefore(div, incorrect || null);
+  }
+}
+
+// ===== 複習進度統計圖表 =====
+let _progressCharts = [];
+
+function toggleProgressPanel(force) {
+  const overlay = document.getElementById('progressOverlay');
+  const panel   = document.getElementById('progressPanel');
+  const nextVisible = typeof force === 'boolean' ? force : !overlay.classList.contains('show');
+  if (nextVisible) {
+    setPanelOpen('settingsOverlay',   'settingsPanel',   false);
+    setPanelOpen('cloudSyncOverlay',  'cloudSyncPanel',  false);
+    overlay.classList.add('show');
+    panel.classList.add('show');
+    _renderProgressPanel();
+  } else {
+    overlay.classList.remove('show');
+    panel.classList.remove('show');
+  }
+}
+
+async function _renderProgressPanel() {
+  const loading         = document.getElementById('progress-loading');
+  const chartsContainer = document.getElementById('progress-charts-container');
+  loading.style.display = 'block';
+  loading.textContent   = '載入中…';
+  chartsContainer.style.display = 'none';
+
+  _progressCharts.forEach(c => c.destroy());
+  _progressCharts = [];
+
+  const stats = await _loadAllQuestionStats();
+  loading.style.display = 'none';
+
+  if (!stats || stats.length === 0) {
+    loading.textContent   = '無法載入題庫資料，請確認已部署在伺服器上。';
+    loading.style.display = 'block';
+    return;
+  }
+
+  chartsContainer.style.display = 'block';
+
+  const isDark      = document.body.classList.contains('dark-mode');
+  const legendColor = isDark ? '#cbd5e1' : '#374151';
+  const tickColor   = isDark ? '#94a3b8' : '#374151';
+
+  const baseChartOpts = (maxVal) => ({
+    indexAxis: 'y',
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { color: legendColor, padding: 14, boxWidth: 14 } },
+      tooltip: { mode: 'index' }
+    },
+    scales: {
+      x: { stacked: true, max: maxVal, ticks: { color: tickColor }, grid: { color: isDark ? '#334155' : '#e2e8f0' } },
+      y: { stacked: true, ticks: { color: tickColor }, grid: { color: isDark ? '#334155' : '#e2e8f0' } }
+    }
+  });
+
+  // Chart 1：複習狀態
+  const ctx1     = document.getElementById('progress-chart-1').getContext('2d');
+  const maxTotal = Math.max(...stats.map(s => s.total), 1);
+  _progressCharts.push(new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels: stats.map(s => s.label),
+      datasets: [
+        { label: '未複習',        data: stats.map(s => s.notReviewed),      backgroundColor: '#e53935' },
+        { label: '已複習（無星）', data: stats.map(s => s.reviewedNoStar),   backgroundColor: '#43a047' },
+        { label: '已複習（有星）', data: stats.map(s => s.reviewedWithStar), backgroundColor: '#fdd835' },
+      ]
+    },
+    options: baseChartOpts(maxTotal)
+  }));
+
+  // Chart 2：星星分布
+  const ctx2         = document.getElementById('progress-chart-2').getContext('2d');
+  const maxStarTotal = Math.max(...stats.map(s => s.star1 + s.star2 + s.star3), 1);
+  _progressCharts.push(new Chart(ctx2, {
+    type: 'bar',
+    data: {
+      labels: stats.map(s => s.label),
+      datasets: [
+        { label: '★ 1顆',   data: stats.map(s => s.star1), backgroundColor: '#ffc107' },
+        { label: '★★ 2顆',  data: stats.map(s => s.star2), backgroundColor: '#fb8c00' },
+        { label: '★★★ 3顆', data: stats.map(s => s.star3), backgroundColor: '#e53935' },
+      ]
+    },
+    options: baseChartOpts(maxStarTotal)
+  }));
+
+  // 文字摘要
+  const summary = document.getElementById('progress-summary');
+  summary.innerHTML = stats.map(s => {
+    const reviewed     = s.reviewedNoStar + s.reviewedWithStar;
+    const pct          = s.total > 0 ? Math.round(reviewed / s.total * 100) : 0;
+    const totalStarred = s.star1 + s.star2 + s.star3;
+    return `<div style="background:${isDark?'#1e3553':'#f8fafc'};border:1px solid ${isDark?'#334155':'#e2e8f0'};border-radius:0.5rem;padding:0.6rem 0.9rem;margin-bottom:0.5rem;">
+      <strong>${s.label}</strong>（共 ${s.total} 題）<br>
+      已複習 <strong>${reviewed}</strong>（${pct}%）｜未複習 <strong>${s.notReviewed}</strong><br>
+      有星共 <strong>${totalStarred}</strong> 題 ── ★${s.star1}&nbsp;&nbsp;★★${s.star2}&nbsp;&nbsp;★★★${s.star3}
+    </div>`;
+  }).join('');
+}
+
+function getProgressSubjectLabel(className) {
+  const raw = String(className || '未分類').trim();
+  const knownSubject = raw.match(/理財工具|理財規劃實務/);
+  if (knownSubject) return knownSubject[0];
+  return raw.replace(/^第\d+屆\s*[－—-]\s*/, '') || '未分類';
+}
+
+function buildProgressStats(questionList) {
+  const groups = new Map();
+  questionList.forEach(q => {
+    const label = getProgressSubjectLabel(q.class);
+    if (!groups.has(label)) {
+      groups.set(label, {
+        label,
+        total: 0,
+        notReviewed: 0,
+        reviewedNoStar: 0,
+        reviewedWithStar: 0,
+        star1: 0,
+        star2: 0,
+        star3: 0
+      });
+    }
+    const stat = groups.get(label);
+    const sn = formatSn(q.sn);
+    const reviewed = isReviewed(q.class, sn);
+    const stars = getStarRating(q.class, sn);
+    stat.total++;
+    if (!reviewed) stat.notReviewed++;
+    else if (stars > 0) stat.reviewedWithStar++;
+    else stat.reviewedNoStar++;
+    if (stars === 1) stat.star1++;
+    else if (stars === 2) stat.star2++;
+    else if (stars >= 3) stat.star3++;
+  });
+  return [...groups.values()].sort((a, b) => a.label.localeCompare(b.label, 'zh-Hant'));
+}
+
+async function _loadAllQuestionStats() {
+  // 題庫已載入時，以目前題庫為準；雙科題庫會在這裡聚合成兩個科目，避免只看到單一檔案。
+  if (Array.isArray(questions) && questions.length) {
+    return buildProgressStats(questions);
+  }
+
+  const baseUrl = getBaseUrl();
+  let manifest = window.OfflineQuestionBanks?.manifest;
+  if (!manifest) {
+    try {
+      const r = await fetch(baseUrl + 'data/manifest.json', { cache: 'no-store' });
+      manifest = await r.json();
+    } catch { return null; }
+  }
+
+  const category = manifest[0];
+  const fileInfo = category?.files?.find(file => file.file.startsWith('00_')) || category?.files?.[0];
+  if (!category || !fileInfo) return null;
+  const filePath = 'data/' + category.category + '/' + fileInfo.file;
+  try {
+    let qs = null;
+    if (window.OfflineQuestionBanks) {
+      try { qs = await OfflineQuestionBanks.load(filePath); } catch (e) {}
+    }
+    if (!qs) {
+      const r = await fetch(baseUrl + filePath, { cache: 'no-store' });
+      const text = await r.text();
+      qs = text.split('\n').filter(Boolean).map(line => JSON.parse(line));
+    }
+    return qs?.length ? buildProgressStats(qs) : null;
+  } catch (e) {
+    console.warn('無法載入進度統計資料:', filePath, e);
+    return null;
+  }
+}
+
+// 依狀態渲染燈號
+function renderReviewLight(className, sn){
+  ensureReviewLightSlot();
+  const box = document.getElementById('review-light-container');
+  const cardLight = document.getElementById('card-review-light');
+  const status = getReviewLightStatus(className, sn);
+  const COLORS = { red:'#e53935', green:'#43a047', yellow:'#fdd835' };
+  const LABELS = { red:'未複習', green:'已複習(無星)', yellow:'已複習(有星)' };
+
+  if (box) {
+    box.innerHTML = `
+      <div class="review-light" title="${LABELS[status]}"
+           style="display:inline-flex;align-items:center;gap:.4rem;">
+        <span style="
+          width:1.4rem;height:1.4rem;border-radius:50%;
+          background:${COLORS[status]};
+          box-shadow:0 0 8px ${COLORS[status]};
+          display:inline-block;"></span>
+        <span style="font-size:.9rem;color:#555;">${LABELS[status]}</span>
+      </div>
+    `;
+  }
+
+  if (cardLight) {
+    cardLight.innerHTML = `
+      <span style="
+        width:0.75rem;height:0.75rem;border-radius:50%;
+        background:${COLORS[status]};
+        box-shadow:0 0 5px ${COLORS[status]};
+        display:inline-block;margin-right:0.35rem;"></span>
+      <span style="font-size:0.82rem;color:#475569;font-weight:600;">${LABELS[status]}</span>
+    `;
+    cardLight.title = `題目複習狀態: ${LABELS[status]}`;
+  }
+
+  const reviewBtn = document.getElementById('card-review-btn');
+  if (reviewBtn) {
+    const rating = getStarRating(className, sn);
+    if (status === 'green') {
+      reviewBtn.className = 'btn btn-outline-success';
+      reviewBtn.innerHTML = '✔ 已掌握';
+      reviewBtn.title = '目前已掌握(無星/綠燈)，點擊切換為待再複習';
+    } else {
+      reviewBtn.className = rating > 0 ? 'btn btn-warning text-dark font-bold' : 'btn btn-outline-danger';
+      reviewBtn.innerHTML = '🔁 待再複習';
+      reviewBtn.title = '目前待複習(有星/紅黃燈)，點擊切換為已掌握';
+    }
+  }
+}
+
+	
+  </script>
+</body>
+</html>

@@ -344,8 +344,6 @@
 
     document.querySelectorAll('.subject-review').forEach(link => link.href = reviewUrl(link.dataset.bank));
     document.querySelectorAll('.subject-exam').forEach(link => link.href = examUrl(link.dataset.bank));
-    document.getElementById('hero-review').href = reviewUrl('00_全部考古題.txt');
-
     const sessionSelect = document.getElementById('session-select');
     const sessions = [];
     for (let year = 115; year >= 105; year--) {
